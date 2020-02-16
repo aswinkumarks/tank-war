@@ -1,6 +1,8 @@
 import pygame
 
+FPS = 20
 BLACK = (0,0,0)
+fps_obj = pygame.time.Clock()
 
 class Gameplay:
     players = []
@@ -9,6 +11,7 @@ class Gameplay:
         pygame.init()
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
+        pygame.key.set_repeat(5)
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
@@ -32,8 +35,6 @@ class Gameplay:
         while True:
             for player in self.players:
                 player.get_action()
-                if player.action == 'DOWN':
-                    print(player.tank_rect)
-                    player.tank_rect = player.tank_rect.move([2,2])
-                    print(player.tank_rect)
+                player.move()
             self.update_screen()
+            fps_obj.tick(FPS)
