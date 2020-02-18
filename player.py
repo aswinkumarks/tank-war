@@ -1,8 +1,9 @@
-from tank import Tank
+from tank import Tank, Bullet
+from game import Sound
 import pygame
 
 
-class Player(Tank):
+class Player(Tank, Bullet):
     def __init__(self, name, hp, ptype = 'local',network=None):
         super().__init__()
         self.ptype = ptype
@@ -11,6 +12,7 @@ class Player(Tank):
         self.movement_speed = 5
         self.action = 'IDLE'
         self.game_mode = 'Single Player'
+        self.fire = False
 
         if ptype == 'remote':
             self.ip = ''
@@ -33,6 +35,10 @@ class Player(Tank):
                     elif event.key == pygame.K_RIGHT :
                         self.action = "RIGHT"
 
+                    elif event.key == pygame.K_SPACE :
+                        # Sound.fire_sound(self)
+                        self.fire = True
+
                 elif event.type == pygame.KEYUP:
                     self.action = 'IDLE'
         
@@ -52,3 +58,7 @@ class Player(Tank):
         
         self.change_direction(self.action)
         self.direction = self.action
+        
+        if self.fire:
+            self.fire = False
+            Sound.fire_sound(self)

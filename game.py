@@ -1,6 +1,6 @@
 import pygame
 
-FPS = 20
+FPS = 30
 BLACK = (0,0,0)
 fps_obj = pygame.time.Clock()
 
@@ -26,6 +26,7 @@ class Gameplay:
         self.screen.fill(BLACK)
         for player in self.players:
             self.screen.blit(player.tank_image, player.tank_rect)
+            # self.screen.blit(player.bullet_img, player.bullet_rect)
         pygame.display.flip()
 
     def show_menu(self):
@@ -41,3 +42,17 @@ class Gameplay:
                 player.move()
             self.update_screen()
             fps_obj.tick(FPS)
+
+
+class Sound:
+    def __init__(self):
+        pygame.mixer.init()
+    
+    def fire_sound(self):
+        pygame.mixer.Sound("sounds/fire.wav").play()
+    
+    def crash_sound(self):
+        pygame.mixer.Sound("sounds/crash.ogg").play()
+    
+    def damage_sound(self):
+        pygame.mixer.Sound("sounds/damage.mp3").play()
