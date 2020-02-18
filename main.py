@@ -1,9 +1,19 @@
+import pygame
 from game import Gameplay
 from player import Player
-
+from network import Network
+import sys
 
 if __name__ == '__main__':
-    game = Gameplay()
+
+    players = []
+    net = Network()
+    if sys.argv[1] == 'server':
+        net.broadcast()
+    elif sys.argv[1] == 'client':
+        net.listen4server()
+
+    game = Gameplay(players)
     p1 = Player('Aswin',100)
     game.add_player(p1)
     game.start()

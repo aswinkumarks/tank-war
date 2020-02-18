@@ -5,18 +5,21 @@ BLACK = (0,0,0)
 fps_obj = pygame.time.Clock()
 
 class Gameplay:
-    players = []
-
-    def __init__(self,full_screen=False):
+    def __init__(self,players,full_screen=False, mode = 'Single Player'):
         pygame.init()
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
         pygame.key.set_repeat(5)
+        self.mode = mode
+        self.players = players
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
         else:
             self.screen = pygame.display.set_mode((640, 480))
+
+        # if mode == 'Multi Player':
+        #     self.network = Network()
         # screen.fill(black)
 
     def update_screen(self):
