@@ -1,30 +1,34 @@
 from tank import Tank, Bullet
 from game import Sound
+import uuid
 import pygame
 
 
-class Player(Tank, Bullet):
+class Player:
     def __init__(self, name, hp, ptype = 'local',network=None):
-        super().__init__()
+        # super().__init__()
+        self.tank = Tank()
+        self.pid = str(uuid.uuid4())
         self.ptype = ptype
         self.name = name
         self.hp = hp
         self.movement_speed = 5
         self.action = 'IDLE'
         self.game_mode = 'Single Player'
-        self.fire = False
+        self.ip = ''
+        self.EXIT_GAME = False
 
         if ptype == 'remote':
-            self.ip = ''
             self.network = network
 
 
     def get_action(self):
+        
         if self.ptype == 'local':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    EXIT_GAME = True
-                    exit(0)
+                    self.EXIT_GAME = True
+                    
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP :
                         self.action = "UP"
@@ -37,28 +41,40 @@ class Player(Tank, Bullet):
 
                     elif event.key == pygame.K_SPACE :
                         # Sound.fire_sound(self)
-                        self.fire = True
+                        self.tank.bullet.fire = True
 
                 elif event.type == pygame.KEYUP:
                     self.action = 'IDLE'
         
         else:
-            self.network.get_action(this.ip)
+            if self.EXIT_GAME:
+                self.network.stop()
+                print('stop')
+                exit(0)
+
+            self.network.get_action(self.ip)
+
+        if self.tank.bullet.fire:
+            self.tank.bullet.rect = self.tank.rect.move([15,45])
+            self.tank.bullet.fire_bullet(self.tank.direction)
+
+        if self.tank.bullet.travel:
+            self.tank.bullet.fire_bullet(self.tank.direction)
 
     def move(self):
         speed = self.movement_speed
         if self.action == 'LEFT':
-            self.tank_rect = self.tank_rect.move([-speed,0])
+            self.tank.rect = self.tank.rect.move([-speed,0])
         elif self.action == 'RIGHT':
-            self.tank_rect = self.tank_rect.move([speed,0])
+            self.tank.rect = self.tank.rect.move([speed,0])
         elif self.action == 'DOWN':
-            self.tank_rect = self.tank_rect.move([0,speed])
+            self.tank.rect = self.tank.rect.move([0,speed])
         elif self.action == 'UP':
-            self.tank_rect = self.tank_rect.move([0,-speed])
+            self.tank.rect = self.tank.rect.move([0,-speed])
         
-        self.change_direction(self.action)
-        self.direction = self.action
+        self.tank.change_direction(self.action)
+        self.tank.direction = self.action
         
-        if self.fire:
-            self.fire = False
-            Sound.fire_sound(self)
+
+    
+

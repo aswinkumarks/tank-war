@@ -25,8 +25,8 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            self.screen.blit(player.tank_image, player.tank_rect)
-            # self.screen.blit(player.bullet_img, player.bullet_rect)
+            self.screen.blit(player.tank.image, player.tank.rect)
+            self.screen.blit(player.tank.bullet.image, player.tank.bullet.rect)
         pygame.display.flip()
 
     def show_menu(self):
@@ -34,6 +34,11 @@ class Gameplay:
 
     def add_player(self,player):
         self.players.append(player)
+        if self.mode=='Multi Player':
+            for player in self.players:
+                if player.ptype == 'remote':
+                    pass
+
 
     def start(self):
         while True:
