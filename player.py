@@ -41,7 +41,8 @@ class Player:
 
                     elif event.key == pygame.K_SPACE :
                         # Sound.fire_sound(self)
-                        self.tank.bullet.fire = True
+                        # self.tank.fire()
+                        self.action = 'FIRE'
 
                 elif event.type == pygame.KEYUP:
                     self.action = 'IDLE'
@@ -54,14 +55,6 @@ class Player:
 
             self.network.get_action(self.ip)
 
-        if self.tank.bullet.fire:
-            self.tank.bullet.rect = self.tank.rect
-            self.tank.bullet.direction = self.tank.direction
-            self.tank.bullet.rotate_bullet(self.tank.direction)
-            self.tank.bullet.fire_bullet()
-
-        if self.tank.bullet.travel:
-            self.tank.bullet.fire_bullet()
 
     def move(self):
         speed = self.movement_speed
@@ -73,9 +66,11 @@ class Player:
             self.tank.rect = self.tank.rect.move([0,speed])
         elif self.action == 'UP':
             self.tank.rect = self.tank.rect.move([0,-speed])
-        
+        elif self.action == 'FIRE':
+            self.tank.fire()
+        # print(self.action)
         self.tank.change_direction(self.action)
-        if self.action != 'IDLE':
+        if self.action != 'IDLE' and self.action != 'FIRE':
             self.tank.direction = self.action
         
 

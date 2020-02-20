@@ -3,11 +3,16 @@ from game import Sound
 
 class Tank:
     def __init__(self):
-        self.bullet = Bullet()
+        # self.bullet = Bullet()
         self.sprites = pygame.image.load("Sprites/tank-blue.png")
         self.image = self.sprites.subsurface(11,7,40,54)
         self.rect = self.image.get_rect()
+        # self.fire = False
         self.direction = 'DOWN'
+        self.bullets = pygame.sprite.Group()
+        self.bullet_speed = 10
+        self.bullet_move_vec = {'UP':[0,-self.bullet_speed],'DOWN':[0,self.bullet_speed],
+                                'RIGHT':[self.bullet_speed,0],'LEFT':[-self.bullet_speed,0]}
 
     def change_direction(self,new_direction):
         if new_direction == 'UP':
@@ -19,47 +24,51 @@ class Tank:
         elif new_direction == 'LEFT':
             self.image = self.sprites.subsurface(128,77,63,45)
 
-class Bullet:
-    def __init__(self):
-        self.sprites = pygame.image.load("Sprites/bullets.png")
-        self.image = self.sprites.subsurface(14,92,10,17)
-        self.org_image = self.sprites.subsurface(14,92,10,17)
-        self.rect = self.image.get_rect()
-        self.direction = 'DOWN'
-        self.speed = 10
-        self.travel = False
-        self.fire = False
-        self.move_vec = {'UP':[0,-self.speed],'DOWN':[0,self.speed],'RIGHT':[self.speed,0],'LEFT':[-self.speed,0]}
-    
-    def fire_bullet(self):
-        self.fire = False
-        # print(self.direction,self.rect)
-        if self.travel:
-            self.rect = self.rect.move(self.move_vec[self.direction])
+    def fire(self):
 
-        else:           
-            if self.direction == 'DOWN' or self.direction == 'UP':
-                self.rect = self.rect.move([15,40])
+        bullet = Bullet(self.bullets,self.direction)
+        bullet.rect = self.rect
+        bullet.update_position_vec = self.bullet_move_vec[self.direction]
+
+        if self.direction == 'DOWN' or self.direction == 'UP':
+            bullet.rect = bullet.rect.move([15,40])
                 
-            elif self.direction == 'LEFT' or self.direction == 'RIGHT':
-                self.rect = self.rect.move([15,10])
-                
-            Sound.fire_sound(self)
-            self.travel = True
+        elif self.direction == 'LEFT' or self.direction == 'RIGHT':
+            bullet.rect = bullet.rect.move([15,10])
+
+        Sound.fire_sound(self)
+
+
+
+class Bullet(pygame.sprite.Sprite):
+    image = None
+    def __init__(self,bullets,direction):
+        pygame.sprite.Sprite.__init__(self, bullets)
+        if Bullet.image is None:
+            sprites = pygame.image.load("Sprites/bullets.png")
+            Bullet.image = sprites.subsurface(14,92,10,17)
+
+        self.image = Bullet.image
+        self.rect = self.image.get_rect()
+        self.update_position_vec = [0,5]
+        self.rotate_bullet(direction)
+    
+    def update(self):
+        self.rect = self.rect.move(self.update_position_vec)
+
 
         # print(self.tank.rect)
         if self.rect[0] > 645 or self.rect[1] > 485 or self.rect[1] < -10 or self.rect[0] < -10:
-            self.travel = False
+            # print('Destroyed')
+            self.kill()
 
     def rotate_bullet(self, new_direction):
         if new_direction == 'UP':
-            self.image = pygame.transform.rotate(self.org_image, 180)
-        elif new_direction == 'DOWN':
-            self.image = pygame.transform.rotate(self.org_image, 0)
+            self.image = pygame.transform.rotate(self.image, 180)
         elif new_direction == 'RIGHT':
-            self.image = pygame.transform.rotate(self.org_image, 90)
+            self.image = pygame.transform.rotate(self.image, 90)
         elif new_direction == 'LEFT':
-            self.image = pygame.transform.rotate(self.org_image, 270)
+            self.image = pygame.transform.rotate(self.image, 270)
 
         # def change_bullet_powerlevel(self,plevel):
     #     if plevel == 0:

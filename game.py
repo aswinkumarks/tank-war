@@ -1,5 +1,6 @@
 import pygame
 
+
 FPS = 30
 BLACK = (0,0,0)
 fps_obj = pygame.time.Clock()
@@ -9,7 +10,7 @@ class Gameplay:
         pygame.init()
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
-        pygame.key.set_repeat(5)
+        pygame.key.set_repeat(10)
         self.mode = mode
         self.players = players
 
@@ -25,7 +26,10 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            self.screen.blit(player.tank.bullet.image, player.tank.bullet.rect)
+            player.tank.bullets.update()
+            player.tank.bullets.draw(self.screen)
+            # for bullet in player.tank.bullets:
+            #     self.screen.blit(bullet.image,bullet.rect)
             self.screen.blit(player.tank.image, player.tank.rect)
             
         pygame.display.flip()
@@ -46,6 +50,7 @@ class Gameplay:
             for player in self.players:
                 player.get_action()
                 player.move()
+
             self.update_screen()
             fps_obj.tick(FPS)
 
