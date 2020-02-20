@@ -25,8 +25,9 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            self.screen.blit(player.tank.image, player.tank.rect)
             self.screen.blit(player.tank.bullet.image, player.tank.bullet.rect)
+            self.screen.blit(player.tank.image, player.tank.rect)
+            
         pygame.display.flip()
 
     def show_menu(self):

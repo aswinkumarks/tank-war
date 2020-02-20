@@ -55,11 +55,13 @@ class Player:
             self.network.get_action(self.ip)
 
         if self.tank.bullet.fire:
-            self.tank.bullet.rect = self.tank.rect.move([15,45])
-            self.tank.bullet.fire_bullet(self.tank.direction)
+            self.tank.bullet.rect = self.tank.rect
+            self.tank.bullet.direction = self.tank.direction
+            self.tank.bullet.rotate_bullet(self.tank.direction)
+            self.tank.bullet.fire_bullet()
 
         if self.tank.bullet.travel:
-            self.tank.bullet.fire_bullet(self.tank.direction)
+            self.tank.bullet.fire_bullet()
 
     def move(self):
         speed = self.movement_speed
@@ -73,7 +75,8 @@ class Player:
             self.tank.rect = self.tank.rect.move([0,-speed])
         
         self.tank.change_direction(self.action)
-        self.tank.direction = self.action
+        if self.action != 'IDLE':
+            self.tank.direction = self.action
         
 
     
