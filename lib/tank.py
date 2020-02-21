@@ -1,5 +1,5 @@
 import pygame
-# from .game import Sound 
+from .sound import Sound 
 
 class Tank:
     def __init__(self):
@@ -14,7 +14,6 @@ class Tank:
         self.bullet_move_vec = {'UP':[0,-self.bullet_speed],'DOWN':[0,self.bullet_speed],
                                 'RIGHT':[self.bullet_speed,0],'LEFT':[-self.bullet_speed,0]}
         
-        # self.sound = Sound()
 
     def change_direction(self,new_direction):
         if new_direction == 'UP':
@@ -38,7 +37,8 @@ class Tank:
         elif self.direction == 'LEFT' or self.direction == 'RIGHT':
             bullet.rect = bullet.rect.move([15,10])
 
-        # self.sound.fire_sound()
+        s = Sound()
+        s.fire_sound()
 
     def move(self,action):
         speed = self.movement_speed
@@ -79,7 +79,6 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.rect = self.rect.move(self.update_position_vec)
 
-
         # print(self.tank.rect)
         if self.rect[0] > 645 or self.rect[1] > 485 or self.rect[1] < -10 or self.rect[0] < -10:
             # print('Destroyed')
@@ -93,11 +92,6 @@ class Bullet(pygame.sprite.Sprite):
         elif new_direction == 'LEFT':
             self.image = pygame.transform.rotate(self.image, 270)
 
-        
-    # def check_collision(self, enemy_sprite):
-    #     if pygame.sprite.collide_rect(self.rect, enemy_sprite):
-    #         return 1
-    #     return 0
 
     # def change_bullet_powerlevel(self,plevel):
     #     if plevel == 0:

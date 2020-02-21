@@ -1,5 +1,6 @@
 import pygame
 from .player import Enemy
+from .sound import Sound
 
 FPS = 30
 BLACK = (0,0,0)
@@ -72,6 +73,7 @@ class Gameplay:
         selected = 0
         self.draw_menu(selected)
         pygame.display.flip()
+        
         s = Sound()
         s.menu_music()
 
@@ -107,41 +109,21 @@ class Gameplay:
 
 
     def start(self):
+        s = Sound()
         while True:
             for player in self.players:
                 player.get_action()
 
-                # for bullet in player.tank.bullets:
-                #     self.check_collision(player.tank.bullets, self.e1.rect)
+                if pygame.sprite.spritecollideany(self.e1, player.tank.bullets):
+                    self.e1.hp = 0
+                    s.crash_sound()
 
                 # player.tank.move()
             
             if self.e1.hp > 0:
                 self.e1.get_action()
+                # for player in self.players:
+                #     self.e1.check_bullet_hit(player.tank.rect)
             
             self.update_screen()
             self.timer.tick(FPS)
-
-    # def check_collision(self, sprite1, sprite2):
-    #     if pygame.sprite.collide_rect(sprite1, sprite2):
-    #         self.e1.hp = 0
-
-class Sound:
-    def __init__(self):
-        pygame.mixer.init()
-    
-    def fire_sound(self):
-        pygame.mixer.Sound("sounds/fire.wav").play()
-    
-    def crash_sound(self):
-        pygame.mixer.Sound("sounds/crash.ogg").play()
-    
-    def damage_sound(self):
-        # pygame.mixer.Sound("sounds/damage.mp3").play()
-        pygame.mixer.music.load("sounds/damage.mp3")
-        pygame.mixer.music.play()
-    
-    def menu_music(self):
-        # pygame.mixer.Sound("sounds/menu.mp3").play()
-        pygame.mixer.music.load("sounds/menu.mp3")
-        pygame.mixer.music.play()
