@@ -111,8 +111,9 @@ class Gameplay:
             for player in self.players:
                 player.get_action()
 
-                for bullet in player.tank.bullets:
-                    self.check_collision(bullet.rect, self.e1.rect)
+                # for bullet in player.tank.bullets:
+                #     self.check_collision(player.tank.bullets, self.e1.rect)
+
                 # player.tank.move()
             
             if self.e1.hp > 0:
@@ -121,9 +122,9 @@ class Gameplay:
             self.update_screen()
             self.timer.tick(FPS)
 
-    def check_collision(self, sprite1, sprite2):
-        if pygame.sprite.collide_rect(sprite1, sprite2):
-            self.e1.hp = 0
+    # def check_collision(self, sprite1, sprite2):
+    #     if pygame.sprite.collide_rect(sprite1, sprite2):
+    #         self.e1.hp = 0
 
 class Sound:
     def __init__(self):

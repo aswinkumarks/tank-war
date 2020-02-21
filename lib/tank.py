@@ -93,7 +93,13 @@ class Bullet(pygame.sprite.Sprite):
         elif new_direction == 'LEFT':
             self.image = pygame.transform.rotate(self.image, 270)
 
-        # def change_bullet_powerlevel(self,plevel):
+        
+    # def check_collision(self, enemy_sprite):
+    #     if pygame.sprite.collide_rect(self.rect, enemy_sprite):
+    #         return 1
+    #     return 0
+
+    # def change_bullet_powerlevel(self,plevel):
     #     if plevel == 0:
     #         self.image = self.sprites.subsurface(14,92,10,17)
     #     elif plevel == 1:
