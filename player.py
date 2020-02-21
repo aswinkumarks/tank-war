@@ -47,12 +47,13 @@ class Player:
                     self.action = 'IDLE'
         
         else:
-            if self.EXIT_GAME:
-                self.network.stop()
-                print('stop')
-                exit(0)
-
             self.network.get_action(self.ip)
+        
+        if self.EXIT_GAME:
+            self.network.stop()
+            print('stop')
+            pygame.quit()
+            # exit(0)
 
         self.tank.move(self.action)
         
