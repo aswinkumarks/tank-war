@@ -1,4 +1,5 @@
 import pygame
+from .player import Enemy
 
 FPS = 30
 BLACK = (0,0,0)
@@ -21,6 +22,9 @@ class Gameplay:
         self.timer = pygame.time.Clock()
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.small_font =  pygame.font.Font('freesansbold.ttf', 24)
+        
+        # self.enemies = enemies
+        self.e1 = Enemy()
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
@@ -35,6 +39,9 @@ class Gameplay:
         self.screen.fill(BLACK)
         for player in self.players:
             player.tank.draw(self.screen)
+        
+        if self.e1.hp > 0:
+            self.e1.draw(self.screen)
             
         pygame.display.flip()
 
@@ -103,11 +110,20 @@ class Gameplay:
         while True:
             for player in self.players:
                 player.get_action()
-                # player.tank.move()
 
+                for bullet in player.tank.bullets:
+                    self.check_collision(bullet.rect, self.e1.rect)
+                # player.tank.move()
+            
+            if self.e1.hp > 0:
+                self.e1.get_action()
+            
             self.update_screen()
             self.timer.tick(FPS)
 
+    def check_collision(self, sprite1, sprite2):
+        if pygame.sprite.collide_rect(sprite1, sprite2):
+            self.e1.hp = 0
 
 class Sound:
     def __init__(self):

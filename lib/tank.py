@@ -1,5 +1,5 @@
 import pygame
-from .game import Sound 
+# from .game import Sound 
 
 class Tank:
     def __init__(self):
@@ -13,6 +13,8 @@ class Tank:
         self.bullet_speed = 10
         self.bullet_move_vec = {'UP':[0,-self.bullet_speed],'DOWN':[0,self.bullet_speed],
                                 'RIGHT':[self.bullet_speed,0],'LEFT':[-self.bullet_speed,0]}
+        
+        # self.sound = Sound()
 
     def change_direction(self,new_direction):
         if new_direction == 'UP':
@@ -36,7 +38,7 @@ class Tank:
         elif self.direction == 'LEFT' or self.direction == 'RIGHT':
             bullet.rect = bullet.rect.move([15,10])
 
-        Sound.fire_sound(self)
+        # self.sound.fire_sound()
 
     def move(self,action):
         speed = self.movement_speed

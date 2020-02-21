@@ -1,6 +1,6 @@
 from .tank import Tank, Bullet
-from .game import Sound
-import uuid
+# from .game import HEIGHT, WIDTH
+import uuid, random
 import pygame
 
 
@@ -61,5 +61,14 @@ class Player:
         self.tank.move(self.action)
         
 
-    
+class Enemy(Tank):
+    def __init__(self):
+        super().__init__()
+        self.hp = 1
+        self.sprites = self.sprites = pygame.image.load("Sprites/tank-green.png")
+        self.rect = self.rect.move([random.randint(640/4, 640-50), random.randint(480/3, 480 - 50)])
+        # self.rect = self.rect.move([320, 240])
 
+    def get_action(self):
+        self.move(random.choice(["UP", "LEFT", "DOWN" , "RIGHT", "FIRE"]))
+   

@@ -1,5 +1,5 @@
 import pygame
-from lib.game import Gameplay, Sound
+from lib.game import Gameplay
 from lib.player import Player
 from lib.network import Network
 import sys
@@ -18,14 +18,12 @@ if __name__ == '__main__':
             net.listen4server()
         
         game = Gameplay(players,mode='Multi Player')
-        sound = Sound()
         p1 = Player('Aswin',100)
         game.add_player(p1)
         game.start()
 
     else:
         game = Gameplay(players)
-        sound = Sound()
         p1 = Player('Aswin',100)
         game.add_player(p1)
         # game.start()
