@@ -1,7 +1,7 @@
 import socket
 import time
 from threading import Thread
-from player import Player
+from .player import Player
 
 class Network:
     def __init__(self,players):

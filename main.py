@@ -1,7 +1,7 @@
 import pygame
-from game import Gameplay, Sound
-from player import Player
-from network import Network
+from lib.game import Gameplay, Sound
+from lib.player import Player
+from lib.network import Network
 import sys
 
 if __name__ == '__main__':

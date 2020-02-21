@@ -1,5 +1,5 @@
-from tank import Tank, Bullet
-from game import Sound
+from .tank import Tank, Bullet
+from .game import Sound
 import uuid
 import pygame
 
