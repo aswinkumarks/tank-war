@@ -39,7 +39,8 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            player.tank.draw(self.screen)
+            if player.hp > 0:
+                player.tank.draw(self.screen)
         
         if self.e1.hp > 0:
             self.e1.draw(self.screen)
@@ -73,7 +74,7 @@ class Gameplay:
         selected = 0
         self.draw_menu(selected)
         pygame.display.flip()
-        
+
         s = Sound()
         s.menu_music()
 
@@ -112,18 +113,23 @@ class Gameplay:
         s = Sound()
         while True:
             for player in self.players:
-                player.get_action()
+                if player.hp > 0:
+                    player.get_action()
 
-                if pygame.sprite.spritecollideany(self.e1, player.tank.bullets):
-                    self.e1.hp = 0
-                    s.crash_sound()
+                    if pygame.sprite.spritecollideany(self.e1, player.tank.bullets):
+                        self.e1.hp = 0
+                        s.crash_sound()
 
-                # player.tank.move()
+                    # player.tank.move()
             
             if self.e1.hp > 0:
                 self.e1.get_action()
-                # for player in self.players:
-                #     self.e1.check_bullet_hit(player.tank.rect)
+                for player in self.players:
+                    if pygame.sprite.spritecollideany( player.tank, self.e1.bullets):
+                        player.hp -= 10
+                        if player.hp <= 0:
+                            self.players.remove(player)
+                            s.crash_sound()
             
             self.update_screen()
             self.timer.tick(FPS)
