@@ -28,6 +28,7 @@ if __name__ == '__main__':
         sound = Sound()
         p1 = Player('Aswin',100)
         game.add_player(p1)
-        game.start()
+        # game.start()
+        game.show_menu()
     # game.update_screen()
 

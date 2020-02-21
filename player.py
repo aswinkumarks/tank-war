@@ -12,7 +12,6 @@ class Player:
         self.ptype = ptype
         self.name = name
         self.hp = hp
-        self.movement_speed = 5
         self.action = 'IDLE'
         self.game_mode = 'Single Player'
         self.ip = ''
@@ -55,23 +54,7 @@ class Player:
 
             self.network.get_action(self.ip)
 
-
-    def move(self):
-        speed = self.movement_speed
-        if self.action == 'LEFT':
-            self.tank.rect = self.tank.rect.move([-speed,0])
-        elif self.action == 'RIGHT':
-            self.tank.rect = self.tank.rect.move([speed,0])
-        elif self.action == 'DOWN':
-            self.tank.rect = self.tank.rect.move([0,speed])
-        elif self.action == 'UP':
-            self.tank.rect = self.tank.rect.move([0,-speed])
-        elif self.action == 'FIRE':
-            self.tank.fire()
-        # print(self.action)
-        self.tank.change_direction(self.action)
-        if self.action != 'IDLE' and self.action != 'FIRE':
-            self.tank.direction = self.action
+        self.tank.move(self.action)
         
 
     

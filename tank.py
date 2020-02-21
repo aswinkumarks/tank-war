@@ -7,7 +7,7 @@ class Tank:
         self.sprites = pygame.image.load("Sprites/tank-blue.png")
         self.image = self.sprites.subsurface(11,7,40,54)
         self.rect = self.image.get_rect()
-        # self.fire = False
+        self.movement_speed = 5
         self.direction = 'DOWN'
         self.bullets = pygame.sprite.Group()
         self.bullet_speed = 10
@@ -38,6 +38,27 @@ class Tank:
 
         Sound.fire_sound(self)
 
+    def move(self,action):
+        speed = self.movement_speed
+        if action == 'LEFT':
+            self.rect = self.rect.move([-speed,0])
+        elif action == 'RIGHT':
+            self.rect = self.rect.move([speed,0])
+        elif action == 'DOWN':
+            self.rect = self.rect.move([0,speed])
+        elif action == 'UP':
+            self.rect = self.rect.move([0,-speed])
+        elif action == 'FIRE':
+            self.fire()
+        # print(action)
+        self.change_direction(action)
+        if action != 'IDLE' and action != 'FIRE':
+            self.direction = action
+
+    def draw(self,screen):
+        self.bullets.update()
+        self.bullets.draw(screen)
+        screen.blit(self.image,self.rect)
 
 
 class Bullet(pygame.sprite.Sprite):

@@ -3,7 +3,6 @@ import pygame
 
 FPS = 30
 BLACK = (0,0,0)
-fps_obj = pygame.time.Clock()
 
 class Gameplay:
     def __init__(self,players,full_screen=False, mode = 'Single Player'):
@@ -13,6 +12,8 @@ class Gameplay:
         pygame.key.set_repeat(10)
         self.mode = mode
         self.players = players
+        self.timer = pygame.time.Clock()
+        self.font = pygame.font.Font('freesansbold.ttf', 32) 
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
@@ -26,16 +27,19 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            player.tank.bullets.update()
-            player.tank.bullets.draw(self.screen)
-            # for bullet in player.tank.bullets:
-            #     self.screen.blit(bullet.image,bullet.rect)
-            self.screen.blit(player.tank.image, player.tank.rect)
+            player.tank.draw(self.screen)
             
         pygame.display.flip()
 
     def show_menu(self):
-        pass
+        # self.screen.draw.text("hello world", (20, 100))
+        text = self.font.render('Tank War', True, (255,255,0), (0,0,0)) 
+        textRect = text.get_rect()  
+        self.screen.blit(text,textRect)
+        pygame.display.flip()
+        while True:
+            pass
+
 
     def add_player(self,player):
         self.players.append(player)
@@ -49,10 +53,10 @@ class Gameplay:
         while True:
             for player in self.players:
                 player.get_action()
-                player.move()
+                # player.tank.move()
 
             self.update_screen()
-            fps_obj.tick(FPS)
+            self.timer.tick(FPS)
 
 
 class Sound:
