@@ -15,6 +15,7 @@ class Player:
         self.action = 'IDLE'
         self.game_mode = 'Single Player'
         self.ip = ''
+        self.prev_fire_tick = pygame.time.get_ticks()
         self.EXIT_GAME = False
 
         if ptype == 'remote':
@@ -24,6 +25,7 @@ class Player:
     def get_action(self):
         
         if self.ptype == 'local':
+            self.action = 'IDLE'
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.EXIT_GAME = True
@@ -39,18 +41,19 @@ class Player:
                         self.action = "RIGHT"
 
                     elif event.key == pygame.K_SPACE :
-                        # Sound.fire_sound(self)
-                        # self.tank.fire()
-                        self.action = 'FIRE'
-
-                elif event.type == pygame.KEYUP:
-                    self.action = 'IDLE'
+                        current_tick = pygame.time.get_ticks()
+                        if current_tick - self.prev_fire_tick > 400:
+                            self.prev_fire_tick = current_tick
+                            self.action = 'FIRE'
+        
+                # elif event.type == pygame.KEYUP:
+                #     self.action = 'IDLE'
         
         else:
             self.network.get_action(self.ip)
         
         if self.EXIT_GAME:
-            self.network.stop()
+            # self.network.stop()
             print('stop')
             pygame.quit()
             # exit(0)

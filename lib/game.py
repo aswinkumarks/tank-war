@@ -84,7 +84,7 @@ class Gameplay:
                     if event.key==pygame.K_RETURN:
                         if selected == 0:
                             # reverting back to set-repeat 10
-                            pygame.key.set_repeat(10)
+                            pygame.key.set_repeat(20)
                             pygame.mixer.music.fadeout(3000)
                             self.start()
                         elif selected == 3:
