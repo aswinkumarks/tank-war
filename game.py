@@ -117,9 +117,11 @@ class Gameplay:
                     if bullect_collided is not None:
                         bullect_collided.kill()
                         # enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
-                        enemy.explode(self.screen)
-                        self.enemies.remove(enemy)
+                        enemy.state = enemy.STATE_EXPLODING
                         s.crash_sound()
+                        
+                    if enemy.state == enemy.STATE_DESTROYED:
+                        self.enemies.remove(enemy)
 
 
 

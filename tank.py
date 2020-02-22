@@ -1,15 +1,24 @@
 import pygame
 from sound import Sound 
-
+from threading import Thread
 s = Sound()
 
 class Tank:
+    (STATE_ALIVE,STATE_EXPLODING,STATE_DESTROYED) = range(3)
+
     def __init__(self):
         
         self.sprites = pygame.image.load("Sprites/tank-blue.png")
         self.image = self.sprites.subsurface(11,7,40,54)
         self.rect = self.image.get_rect()
         self.movement_speed = 5
+        self.state = self.STATE_ALIVE
+
+        sprites = pygame.image.load("Sprites/explosion.png")
+        self.explosion_images = [sprites.subsurface(74, 11, 45, 40), sprites.subsurface(131, 5, 58, 53), 
+                    sprites.subsurface(191, 0, 65, 62), sprites.subsurface(262, 0, 58, 60), 
+                    sprites.subsurface(2, 68, 61, 57), sprites.subsurface(70, 70, 55, 55)]
+
         self.direction = 'DOWN'
         self.bullets = pygame.sprite.Group()
         self.bullet_speed = 10
@@ -42,6 +51,8 @@ class Tank:
         s.fire_sound()
 
     def move(self,action):
+        if self.state == self.STATE_DESTROYED or self.state == self.STATE_EXPLODING:
+            return
         speed = self.movement_speed
         if action == 'LEFT':
             self.rect = self.rect.move([-speed,0])
@@ -59,22 +70,18 @@ class Tank:
             self.direction = action
 
     def draw(self,screen):
-        self.bullets.update()
-        self.bullets.draw(screen)
-        screen.blit(self.image,self.rect)
-
-    def explode(self, screen):
-    # def explode(self, screen, explode_coordinates):
-        self.sprites = pygame.image.load("Sprites/explosion.png")
-        explosion_images = [self.sprites.subsurface(74, 11, 45, 40), self.sprites.subsurface(131, 5, 58, 53), 
-                    self.sprites.subsurface(191, 0, 65, 62), self.sprites.subsurface(262, 0, 58, 60), 
-                        self.sprites.subsurface(2, 68, 61, 57), self.sprites.subsurface(70, 70, 55, 55)]
-        
-        for self.image in explosion_images:
-            # self.rect = self.image.get_rect()
-            # self.rect = self.rect.move(explode_coordinates)
+        if self.state == self.STATE_ALIVE:
+            self.bullets.update()
+            self.bullets.draw(screen)
             screen.blit(self.image,self.rect)
-            pygame.display.flip()
+        elif self.state == self.STATE_EXPLODING:
+            if len(self.explosion_images) == 0:
+                self.state = self.STATE_DESTROYED
+                return
+
+            screen.blit(self.explosion_images[0],self.rect)
+            self.explosion_images.pop(0)
+
             
 
 
