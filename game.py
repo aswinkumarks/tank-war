@@ -1,6 +1,6 @@
 import pygame
-from .player import Enemy
-from .sound import Sound
+from player import Enemy,Player
+from sound import Sound
 
 FPS = 30
 BLACK = (0,0,0)
@@ -24,8 +24,9 @@ class Gameplay:
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.small_font =  pygame.font.Font('freesansbold.ttf', 24)
         
-        # self.enemies = enemies
-        self.e1 = Enemy()
+        self.enemies = pygame.sprite.Group()
+        self.no_enemies = 2
+        # self.e1 = Enemy()
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
@@ -39,11 +40,12 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         for player in self.players:
-            if player.hp > 0:
-                player.tank.draw(self.screen)
+            player.tank.draw(self.screen)
         
-        if self.e1.hp > 0:
-            self.e1.draw(self.screen)
+        # if self.e1.hp > 0:
+        #     self.e1.draw(self.screen)
+        for enemy in self.enemies:
+            enemy.draw(self.screen)
             
         pygame.display.flip()
 
@@ -70,6 +72,7 @@ class Gameplay:
         
         # set-repeat 10 is causing menu selction issue and is also causing multiple bullets to fire when pressing spacebar once
         pygame.key.set_repeat(0)
+        self.no_enemies = 2
 
         selected = 0
         self.draw_menu(selected)
@@ -96,6 +99,10 @@ class Gameplay:
                             # reverting back to set-repeat 10
                             pygame.key.set_repeat(20)
                             pygame.mixer.music.fadeout(3000)
+                            p1 = Player('Aswin',100)
+                            self.add_player(p1)
+                            Enemy(self.enemies)
+                            Enemy(self.enemies)
                             self.start()
                         elif selected == 3:
                             pygame.quit()
@@ -113,23 +120,35 @@ class Gameplay:
         s = Sound()
         while True:
             for player in self.players:
-                if player.hp > 0:
-                    player.get_action()
-
-                    if pygame.sprite.spritecollideany(self.e1, player.tank.bullets):
-                        self.e1.hp = 0
+                player.get_action()
+                for enemy in self.enemies:
+                    bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
+                    if bullect_collided is not None:
+                        bullect_collided.kill()
+                        self.enemies.remove(enemy)
                         s.crash_sound()
 
-                    # player.tank.move()
-            
-            if self.e1.hp > 0:
-                self.e1.get_action()
+
+            for enemy in self.enemies:
+                enemy.get_action(self.players)
                 for player in self.players:
-                    if pygame.sprite.spritecollideany( player.tank, self.e1.bullets):
-                        player.hp -= 10
+                    bullect_collided = pygame.sprite.spritecollideany( player.tank, enemy.bullets)
+                    if bullect_collided is not None:
+                        player.hp -=10
+                        print('HP:',player.hp)
+                        s.crash_sound()
+                        bullect_collided.kill()
                         if player.hp <= 0:
+                            print('You died')
                             self.players.remove(player)
-                            s.crash_sound()
-            
+                            self.enemies.empty()
+                            self.show_menu()
+
+            if len(self.enemies) == 0:
+                self.no_enemies += 1
+                for _ in range(self.no_enemies):
+                    Enemy(self.enemies)
+
+
             self.update_screen()
             self.timer.tick(FPS)

@@ -1,5 +1,5 @@
 import pygame
-from .sound import Sound 
+from sound import Sound 
 
 class Tank:
     def __init__(self):

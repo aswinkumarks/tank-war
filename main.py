@@ -1,7 +1,7 @@
 import pygame
-from lib.game import Gameplay
-from lib.player import Player
-from lib.network import Network
+from game import Gameplay
+from player import Player
+from network import Network
 import sys
 
 if __name__ == '__main__':
@@ -24,8 +24,6 @@ if __name__ == '__main__':
 
     else:
         game = Gameplay(players)
-        p1 = Player('Aswin',100)
-        game.add_player(p1)
         # game.start()
         game.show_menu()
     # game.update_screen()
