@@ -1,6 +1,8 @@
 import pygame
 from sound import Sound 
 
+s = Sound()
+
 class Tank:
     def __init__(self):
         
@@ -37,7 +39,6 @@ class Tank:
         elif self.direction == 'LEFT' or self.direction == 'RIGHT':
             bullet.rect = bullet.rect.move([15,10])
 
-        s = Sound()
         s.fire_sound()
 
     def move(self,action):
@@ -62,14 +63,18 @@ class Tank:
         self.bullets.draw(screen)
         screen.blit(self.image,self.rect)
 
-    def explode(self):
+    def explode(self, screen):
+    # def explode(self, screen, explode_coordinates):
         self.sprites = pygame.image.load("Sprites/explosion.png")
-        explosion_images = [self.sprites.subsurface(223, 34, 132, 114), self.sprites.subsurface(397, 16, 168, 156), 
-                    self.sprites.subsurface(577, 1, 186, 180), self.sprites.subsurface(766, 1, 183, 177), 
-                        self.sprites.subsurface(7, 206, 180, 168), self.sprites.subsurface(211, 212, 159, 162)]
+        explosion_images = [self.sprites.subsurface(74, 11, 45, 40), self.sprites.subsurface(131, 5, 58, 53), 
+                    self.sprites.subsurface(191, 0, 65, 62), self.sprites.subsurface(262, 0, 58, 60), 
+                        self.sprites.subsurface(2, 68, 61, 57), self.sprites.subsurface(70, 70, 55, 55)]
         
         for self.image in explosion_images:
-            self.rect = self.image.get_rect()
+            # self.rect = self.image.get_rect()
+            # self.rect = self.rect.move(explode_coordinates)
+            screen.blit(self.image,self.rect)
+            pygame.display.flip()
             
 
 

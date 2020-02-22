@@ -12,6 +12,7 @@ GREEN = (0, 255, 0)
 
 HEIGHT = 480
 WIDTH = 640
+s = Sound()
 
 class Gameplay:
     def __init__(self,players,full_screen=False, mode = 'Single Player'):
@@ -69,8 +70,6 @@ class Gameplay:
         selected = 0
         self.draw_menu(selected)
         pygame.display.flip()
-
-        s = Sound()
         s.menu_music()
 
         while True:
@@ -109,7 +108,7 @@ class Gameplay:
 
 
     def start(self):
-        s = Sound()
+
         while True:
             for player in self.players:
                 player.get_action()
@@ -117,8 +116,11 @@ class Gameplay:
                     bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
                     if bullect_collided is not None:
                         bullect_collided.kill()
+                        # enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
+                        enemy.explode(self.screen)
                         self.enemies.remove(enemy)
                         s.crash_sound()
+
 
 
             for enemy in self.enemies:
@@ -126,15 +128,16 @@ class Gameplay:
                 for player in self.players:
                     bullect_collided = pygame.sprite.spritecollideany( player.tank, enemy.bullets)
                     if bullect_collided is not None:
-                        player.hp -=10
+                        player.hp -= 20
                         print('HP:',player.hp)
                         s.damage_sound()
                         bullect_collided.kill()
                         if player.hp <= 0:
-                            self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)                            
+                            player.tank.explode(self.screen)             
                             s.crash_sound()
                             self.players.remove(player)
                             self.enemies.empty()
+                            self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
                             self.show_menu()
 
             if len(self.enemies) == 0:
