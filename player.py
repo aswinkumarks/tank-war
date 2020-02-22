@@ -6,7 +6,7 @@ import pygame
 
 class Player:
     def __init__(self, name, hp, ptype = 'local',network=None):
-        # super().__init__()
+       
         self.tank = Tank()
         self.pid = str(uuid.uuid4())
         self.ptype = ptype
@@ -68,7 +68,6 @@ class Enemy(Tank,pygame.sprite.Sprite):
         self.hp = 1
         self.sprites = self.sprites = pygame.image.load("Sprites/tank-green.png")
         self.rect = self.rect.move([random.randint(640/4, 640-50), random.randint(480/3, 480 - 50)])
-        # self.rect = self.rect.move([320, 240])
         self.movement_speed = 3
         self.prev_fire_tick = pygame.time.get_ticks()
 

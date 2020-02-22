@@ -3,7 +3,7 @@ from sound import Sound
 
 class Tank:
     def __init__(self):
-        # self.bullet = Bullet()
+        
         self.sprites = pygame.image.load("Sprites/tank-blue.png")
         self.image = self.sprites.subsurface(11,7,40,54)
         self.rect = self.image.get_rect()
@@ -52,7 +52,7 @@ class Tank:
             self.rect = self.rect.move([0,-speed])
         elif action == 'FIRE':
             self.fire()
-        # print(action)
+        
         self.change_direction(action)
         if action != 'IDLE' and action != 'FIRE':
             self.direction = action
@@ -61,6 +61,16 @@ class Tank:
         self.bullets.update()
         self.bullets.draw(screen)
         screen.blit(self.image,self.rect)
+
+    def explode(self):
+        self.sprites = pygame.image.load("Sprites/explosion.png")
+        explosion_images = [self.sprites.subsurface(223, 34, 132, 114), self.sprites.subsurface(397, 16, 168, 156), 
+                    self.sprites.subsurface(577, 1, 186, 180), self.sprites.subsurface(766, 1, 183, 177), 
+                        self.sprites.subsurface(7, 206, 180, 168), self.sprites.subsurface(211, 212, 159, 162)]
+        
+        for self.image in explosion_images:
+            self.rect = self.image.get_rect()
+            
 
 
 class Bullet(pygame.sprite.Sprite):

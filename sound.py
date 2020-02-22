@@ -5,10 +5,10 @@ class Sound:
         pygame.mixer.init()
     
     def fire_sound(self):
-        pygame.mixer.Sound("sounds/fire.wav").play()
+        pygame.mixer.Sound("sounds/boom1.wav").play()
     
     def crash_sound(self):
-        pygame.mixer.Sound("sounds/crash.ogg").play()
+        pygame.mixer.Sound("sounds/explosion.wav").play()
     
     def damage_sound(self):
         # pygame.mixer.Sound("sounds/damage.mp3").play()

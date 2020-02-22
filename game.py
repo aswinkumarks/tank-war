@@ -8,6 +8,7 @@ YELLOW = (255,255,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
 WHITE = (255,255,255)
+GREEN = (0, 255, 0)
 
 HEIGHT = 480
 WIDTH = 640
@@ -26,7 +27,6 @@ class Gameplay:
         
         self.enemies = pygame.sprite.Group()
         self.no_enemies = 2
-        # self.e1 = Enemy()
 
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
@@ -42,8 +42,6 @@ class Gameplay:
         for player in self.players:
             player.tank.draw(self.screen)
         
-        # if self.e1.hp > 0:
-        #     self.e1.draw(self.screen)
         for enemy in self.enemies:
             enemy.draw(self.screen)
             
@@ -51,29 +49,23 @@ class Gameplay:
 
     def text_format_draw(self, text, color, x, y, font, menu_id, selected):
         if selected == menu_id:
-            color = WHITE
+            color = GREEN
         text = font.render(text, True, color, (0,0,0)) 
         textRect = text.get_rect()  
-        # print(self.font.size('Tank War'))
         textRect[0], textRect[1] = x - textRect[2]/2, y
-        # print(textRect)
         self.screen.blit(text,textRect)
 
 
     def draw_menu(self, selected):
-        self.text_format_draw('Tank War', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
-        self.text_format_draw('Singleplayer',BLUE , WIDTH/2, HEIGHT/8 + 100, self.small_font, 0, selected)
-        self.text_format_draw('Multiplayer', BLUE, WIDTH/2, HEIGHT/8 + 130, self.small_font, 1, selected)
-        self.text_format_draw('Settings', BLUE, WIDTH/2, HEIGHT/8 + 160, self.small_font, 2, selected)
+        self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
+        self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.small_font, 0, selected)
+        self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.small_font, 1, selected)
+        self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.small_font, 2, selected)
         self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.small_font, 3, selected)
 
     def show_menu(self):
-        # self.screen.draw.text("hello world", (20, 100))
-        
-        # set-repeat 10 is causing menu selction issue and is also causing multiple bullets to fire when pressing spacebar once
         pygame.key.set_repeat(0)
         self.no_enemies = 2
-
         selected = 0
         self.draw_menu(selected)
         pygame.display.flip()
@@ -98,8 +90,8 @@ class Gameplay:
                         if selected == 0:
                             # reverting back to set-repeat 10
                             pygame.key.set_repeat(20)
-                            pygame.mixer.music.fadeout(3000)
-                            p1 = Player('Aswin',100)
+                            pygame.mixer.music.fadeout(2000)
+                            p1 = Player('Warrior',100)
                             self.add_player(p1)
                             Enemy(self.enemies)
                             Enemy(self.enemies)
@@ -136,10 +128,11 @@ class Gameplay:
                     if bullect_collided is not None:
                         player.hp -=10
                         print('HP:',player.hp)
-                        s.crash_sound()
+                        s.damage_sound()
                         bullect_collided.kill()
                         if player.hp <= 0:
-                            print('You died')
+                            self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)                            
+                            s.crash_sound()
                             self.players.remove(player)
                             self.enemies.empty()
                             self.show_menu()
