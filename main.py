@@ -2,6 +2,7 @@ import pygame
 from lib.game import Gameplay
 from lib.player import Player
 from lib.network import Network
+from lib.sound import Sound
 import sys
 
 if __name__ == '__main__':
