@@ -112,6 +112,12 @@ class Gameplay:
         while True:
             for player in self.players:
                 player.get_action()
+                if player.tank.state == player.tank.STATE_DESTROYED:
+                    self.players.remove(player)
+                    self.enemies.empty()
+                    self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
+                    self.show_menu()
+                    
                 for enemy in self.enemies:
                     bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
                     if bullect_collided is not None:
@@ -135,12 +141,9 @@ class Gameplay:
                         s.damage_sound()
                         bullect_collided.kill()
                         if player.hp <= 0:
-                            player.tank.explode(self.screen)             
+                            player.tank.state = player.tank.STATE_EXPLODING           
                             s.crash_sound()
-                            self.players.remove(player)
-                            self.enemies.empty()
-                            self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
-                            self.show_menu()
+
 
             if len(self.enemies) == 0:
                 self.no_enemies += 1
