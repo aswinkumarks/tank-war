@@ -25,6 +25,7 @@ class Gameplay:
         self.timer = pygame.time.Clock()
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.small_font =  pygame.font.Font('freesansbold.ttf', 24)
+        self.tiny_font = pygame.font.Font('freesansbold.ttf', 18)
         
         self.enemies = pygame.sprite.Group()
         self.no_enemies = 2
@@ -50,7 +51,9 @@ class Gameplay:
 
     def text_format_draw(self, text, color, x, y, font, menu_id, selected):
         if selected == menu_id:
-            color = GREEN
+            # color = BLUE
+            font = self.small_font
+            text = "> " + text + " <"
         text = font.render(text, True, color, (0,0,0)) 
         textRect = text.get_rect()  
         textRect[0], textRect[1] = x - textRect[2]/2, y
@@ -58,11 +61,12 @@ class Gameplay:
 
 
     def draw_menu(self, selected):
+        self.screen.fill(BLACK)
         self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
-        self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.small_font, 0, selected)
-        self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.small_font, 1, selected)
-        self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.small_font, 2, selected)
-        self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.small_font, 3, selected)
+        self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 0, selected)
+        self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 1, selected)
+        self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.tiny_font, 2, selected)
+        self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 3, selected)
 
     def show_menu(self):
         pygame.key.set_repeat(0)
