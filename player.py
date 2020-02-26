@@ -76,26 +76,27 @@ class Enemy(Tank,pygame.sprite.Sprite):
         current_tick = pygame.time.get_ticks()
         if current_tick - self.prev_fire_tick > 200:
             self.prev_fire_tick = current_tick
-            states.append('FIRE')
-        # else:
-        #     movement_prob = random.random()
-        #     if movement_prob < 0.5:
-        #         return
+            # states.append('FIRE')
+            self.move('FIRE')
+        else:
+            movement_prob = random.random()
+            if movement_prob < 0.5:
+                return
 
-        #     player = random.choice(players)
-        #     p_x = player.tank.rect[0]
-        #     p_y = player.tank.rect[1]
-        #     action = 'IDLE'
-        #     if p_x - self.rect[0] > 5:
-        #         action = 'RIGHT'
-        #     elif p_x - self.rect[0] < -5:
-        #         action = 'LEFT'
-        #     elif p_y - self.rect[1] > 5:
-        #         action = 'DOWN'
-        #     elif p_y - self.rect[1] < -5:
-        #         action = 'UP'
+            player = random.choice(players)
+            p_x = player.tank.rect[0]
+            p_y = player.tank.rect[1]
+            action = 'IDLE'
+            if p_x - self.rect[0] > 5:
+                action = 'RIGHT'
+            elif p_x - self.rect[0] < -5:
+                action = 'LEFT'
+            elif p_y - self.rect[1] > 5:
+                action = 'DOWN'
+            elif p_y - self.rect[1] < -5:
+                action = 'UP'
 
-            # self.move(action)
-        self.move(random.choice(states))
+            self.move(action)
+        # self.move(random.choice(states))
 
    
