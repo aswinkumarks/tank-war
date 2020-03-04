@@ -1,5 +1,6 @@
 import pygame
 from player import Enemy,Player
+from network import Network
 from sound import Sound
 
 FPS = 30
@@ -15,17 +16,20 @@ WIDTH = 640
 s = Sound()
 
 class Gameplay:
-    def __init__(self,players,full_screen=False, mode = 'Single Player'):
+    def __init__(self,full_screen=False, mode = 'Single Player'):
         pygame.init()
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
         pygame.key.set_repeat(10)
         self.mode = mode
-        self.players = players
+        self.players = []
+        self.available_servers = []
         self.timer = pygame.time.Clock()
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.small_font =  pygame.font.Font('freesansbold.ttf', 24)
         self.tiny_font = pygame.font.Font('freesansbold.ttf', 18)
+        self.active_menu = 'Main menu'
+        self.network = Network(self.players)
         
         self.enemies = pygame.sprite.Group()
         self.no_enemies = 2
@@ -35,8 +39,6 @@ class Gameplay:
         else:
             self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-        # if mode == 'Multi Player':
-        #     self.network = Network()
         # screen.fill(black)
 
     def update_screen(self):
@@ -60,47 +62,86 @@ class Gameplay:
         self.screen.blit(text,textRect)
 
 
-    def draw_menu(self, selected):
+    def draw_menu(self, selction):
         self.screen.fill(BLACK)
-        self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
-        self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 0, selected)
-        self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 1, selected)
-        self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.tiny_font, 2, selected)
-        self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 3, selected)
+        if self.active_menu == 'Main menu':
+            self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
+            self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
+            self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
+            self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.tiny_font, 3, selction)
+            self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 4, selction)
+
+        elif self.active_menu == 'Multi-player menu':
+            self.text_format_draw('Join Server',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
+            self.text_format_draw('Host Server', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
+
+        elif self.active_menu == 'List available servers':
+            self.text_format_draw('Available Servers', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
+            for i in range(len(self.available_servers)):
+                self.text_format_draw(self.available_servers[i][0],WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, i+1, selction)
+        
+        elif self.active_menu == 'Show connected clients':
+            self.text_format_draw('Connected Players', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
+            for i in range(len(self.players)):
+                self.text_format_draw(self.playesrs[i].name,WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, -1, 2)
+
+        pygame.display.flip()
+                                    
 
     def show_menu(self):
         pygame.key.set_repeat(0)
         self.no_enemies = 2
-        selected = 0
+        selected = 1
         self.draw_menu(selected)
-        pygame.display.flip()
         s.menu_music()
 
         while True:
+            no_entries = {'Main menu':4, 'Multi-player menu':2,
+                          'Show connected clients':3,'List available servers':len(self.available_servers)}
             for event in pygame.event.get():
                 if event.type==pygame.QUIT:
                     pygame.quit()
                 if event.type==pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.active_menu = 'Main menu'
+                        self.network.allowconnection = False
+                        self.network.server_flag = False
+                        self.network.listen = False
+
                     if event.key==pygame.K_UP and selected >= 1:
                         selected -= 1
-                    elif event.key==pygame.K_DOWN and selected < 3:
+                    elif event.key==pygame.K_DOWN and selected < no_entries[self.active_menu]:
                         selected += 1
-    
-                    self.draw_menu(selected)
-                    pygame.display.flip()
 
                     if event.key==pygame.K_RETURN:
-                        if selected == 0:
-                            # reverting back to set-repeat 10
-                            pygame.key.set_repeat(20)
-                            pygame.mixer.music.fadeout(2000)
-                            p1 = Player('Warrior',100)
-                            self.add_player(p1)
-                            Enemy(self.enemies)
-                            Enemy(self.enemies)
-                            self.start()
-                        elif selected == 3:
-                            pygame.quit()
+                        if self.active_menu == 'Main menu':
+                            if selected == 1:
+                                # reverting back to set-repeat 10
+                                pygame.key.set_repeat(20)
+                                pygame.mixer.music.fadeout(2000)
+                                p1 = Player('Warrior',100)
+                                self.add_player(p1)
+                                Enemy(self.enemies)
+                                Enemy(self.enemies)
+                                self.start()
+
+                            elif selected == 2:
+                                self.active_menu = 'Multi-player menu'
+                                selected = 1
+
+                            elif selected == 4:
+                                pygame.quit()
+
+                        elif self.active_menu =='Multi-player menu':
+                            if selected == 1:
+                                self.network.broadcast()
+                                self.active_menu = 'Show connected clients'                            
+                            elif selected == 2:
+                                self.network.start_listen_server(self.available_servers) 
+                                self.active_menu = 'List available servers'
+
+            self.timer.tick(FPS)
+            self.draw_menu(selected)
                                    
 
     def add_player(self,player):

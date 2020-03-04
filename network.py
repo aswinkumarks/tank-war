@@ -1,5 +1,6 @@
 import socket
 import time
+# from main import game
 from threading import Thread
 from player import Player
 
@@ -12,6 +13,7 @@ class Network:
         self.serverPort = 6000
         self.allowconnection = True
         self.server_flag = True
+        self.listen = True
         self.players = players
 
     def broadcast(self):
@@ -29,11 +31,13 @@ class Network:
         t1 = Thread(target=self.broadcast)
         t1.setDaemon(True)
         t1.start()
-        self.start_server()
+        t = Thread(target=self.server)
+        t.start()
 
 
     def server(self):
         self.connection.bind(('', self.serverPort))
+        self.server_flag = True
         while self.server_flag:
             message, addr = self.connection.recvfrom(1024)
             message = message.decode()
@@ -61,21 +65,21 @@ class Network:
         self.allowconnection = False
         self.server_flag = False
 
-    def start_server(self):
-        t = Thread(target=self.server)
-        t.start()
 
-    def listen4server(self):
-        self.connection.bind(("", 37020))
-        while True:
+    def listen4server(self,available_servers):
+        self.connection.bind(('', 37020))
+        self.listen = True
+        while self.listen:
             data, addr = self.connection.recvfrom(1024)
             print("received message: %s"%data)
             if data == b'Tank War Server':
-                self.serverIP = addr[0]
-                self.serverPort = addr[1]
-                # msg  = b'Add Player:-Dvk:-'
-                # self.connection.sendto(b'Add Player:-Dvk',(addr[0],6000))
-                break
+                if addr not in available_servers:
+                    available_servers.append(addr)
+
+
+    def start_listen_server(self,available_servers):
+        t1 = Thread(target=self.listen4server,args=(available_servers,))
+        t1.start()
 
 
     def send_msg(self,msg,ip):
