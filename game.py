@@ -72,8 +72,8 @@ class Gameplay:
             self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 4, selction)
 
         elif self.active_menu == 'Multi-player menu':
-            self.text_format_draw('Join Server',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
-            self.text_format_draw('Host Server', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
+            self.text_format_draw('Host Server', WHITE, WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
+            self.text_format_draw('Join Server',WHITE , WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
 
         elif self.active_menu == 'List available servers':
             self.text_format_draw('Available Servers', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
@@ -100,7 +100,11 @@ class Gameplay:
                           'Show connected clients':3,'List available servers':len(self.available_servers)}
             for event in pygame.event.get():
                 if event.type==pygame.QUIT:
+                    self.network.allowconnection = False
+                    self.network.server_flag = False
+                    self.network.listen = False
                     pygame.quit()
+
                 if event.type==pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.active_menu = 'Main menu'
@@ -108,12 +112,13 @@ class Gameplay:
                         self.network.server_flag = False
                         self.network.listen = False
 
-                    if event.key==pygame.K_UP and selected >= 1:
+                    if event.key==pygame.K_UP and selected > 1:
                         selected -= 1
                     elif event.key==pygame.K_DOWN and selected < no_entries[self.active_menu]:
                         selected += 1
 
                     if event.key==pygame.K_RETURN:
+                        # print(selected)
                         if self.active_menu == 'Main menu':
                             if selected == 1:
                                 # reverting back to set-repeat 10
@@ -133,10 +138,12 @@ class Gameplay:
                                 pygame.quit()
 
                         elif self.active_menu =='Multi-player menu':
+                            print(selected)
                             if selected == 1:
-                                self.network.broadcast()
+                                self.network.start_broadcast()
                                 self.active_menu = 'Show connected clients'                            
                             elif selected == 2:
+                                selected = 1
                                 self.network.start_listen_server(self.available_servers) 
                                 self.active_menu = 'List available servers'
 
