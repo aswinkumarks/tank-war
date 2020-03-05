@@ -5,7 +5,7 @@ import pygame
 
 
 class Player:
-    def __init__(self, name, hp, ptype = 'local',network=None):
+    def __init__(self, name, hp, ptype = 'local'):
        
         self.tank = Tank()
         self.pid = str(uuid.uuid4())
@@ -13,13 +13,9 @@ class Player:
         self.name = name
         self.hp = hp
         self.action = 'IDLE'
-        self.game_mode = 'Single Player'
         self.ip = ''
         self.prev_fire_tick = pygame.time.get_ticks()
         self.EXIT_GAME = False
-
-        if ptype == 'remote':
-            self.network = network
 
 
     def get_action(self):
@@ -48,9 +44,10 @@ class Player:
         
                 # elif event.type == pygame.KEYUP:
                 #     self.action = 'IDLE'
+
         
-        else:
-            self.network.get_action(self.ip)
+        # else:
+        #     self.network.get_action(self.ip)
         
         if self.EXIT_GAME:
             # self.network.stop()

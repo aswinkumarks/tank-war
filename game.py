@@ -16,12 +16,12 @@ WIDTH = 640
 s = Sound()
 
 class Gameplay:
-    def __init__(self,full_screen=False, mode = 'Single Player'):
+    def __init__(self,full_screen=False):
         pygame.init()
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
         pygame.key.set_repeat(10)
-        self.mode = mode
+        self.mode = 'Single Player'
         self.players = []
         self.available_servers = []
         self.timer = pygame.time.Clock()
@@ -29,7 +29,9 @@ class Gameplay:
         self.small_font =  pygame.font.Font('freesansbold.ttf', 24)
         self.tiny_font = pygame.font.Font('freesansbold.ttf', 18)
         self.active_menu = 'Main menu'
-        self.network = Network(self.players)
+        self.network = Network(self)
+
+        self.start_game = False
         
         self.enemies = pygame.sprite.Group()
         self.no_enemies = 2
@@ -79,11 +81,12 @@ class Gameplay:
             self.text_format_draw('Available Servers', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
             for i in range(len(self.available_servers)):
                 self.text_format_draw(self.available_servers[i][0],WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, i+1, selction)
+
         
         elif self.active_menu == 'Show connected clients':
             self.text_format_draw('Connected Players', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
             for i in range(len(self.players)):
-                self.text_format_draw(self.playesrs[i].name,WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, -1, 2)
+                self.text_format_draw(self.players[i].name,WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, -1, 2)
 
         pygame.display.flip()
                                     
@@ -121,6 +124,7 @@ class Gameplay:
                         # print(selected)
                         if self.active_menu == 'Main menu':
                             if selected == 1:
+                                self.mode = 'Single Player'
                                 # reverting back to set-repeat 10
                                 pygame.key.set_repeat(20)
                                 pygame.mixer.music.fadeout(2000)
@@ -131,21 +135,46 @@ class Gameplay:
                                 self.start()
 
                             elif selected == 2:
+                                self.mode = 'Multi Player'
                                 self.active_menu = 'Multi-player menu'
                                 selected = 1
 
                             elif selected == 4:
                                 pygame.quit()
 
-                        elif self.active_menu =='Multi-player menu':
-                            print(selected)
+                        elif self.active_menu == 'Multi-player menu':
+                            # print(selected)
                             if selected == 1:
                                 self.network.start_broadcast()
                                 self.active_menu = 'Show connected clients'                            
                             elif selected == 2:
                                 selected = 1
-                                self.network.start_listen_server(self.available_servers) 
+                                self.network.start_listen_server() 
                                 self.active_menu = 'List available servers'
+
+                        elif self.active_menu == 'List available servers':
+                            self.network.listen = False
+                            p1 = Player('Remote Player',100)
+                            self.add_player(p1)
+                            data = {'pid':p1.pid , 'msg':'Add Player', 
+                                    'p_info':{'pname':p1.name} }
+
+                            self.network.send_data(data,self.available_servers[selected-1][0])
+                            self.network.start_server()
+
+                        elif self.active_menu == 'Show connected clients':
+                            p1 = Player('Warrior',100)
+                            self.add_player(p1)
+                            self.start_game = True
+                            data = {'msg':'Start Game'}
+                            for player in self.players:
+                                if player.ptype == 'remote':
+                                    self.network.send_data(data,player.ip)
+
+            
+                if self.start_game:
+                    self.start()        
+
 
             self.timer.tick(FPS)
             self.draw_menu(selected)
@@ -153,10 +182,10 @@ class Gameplay:
 
     def add_player(self,player):
         self.players.append(player)
-        if self.mode=='Multi Player':
-            for player in self.players:
-                if player.ptype == 'remote':
-                    pass
+        # if self.mode=='Multi Player':
+        #     for player in self.players:
+        #         if player.ptype == 'remote':
+        #             pass
 
 
     def start(self):
@@ -164,12 +193,21 @@ class Gameplay:
         while True:
             for player in self.players:
                 player.get_action()
+
                 if player.tank.state == player.tank.STATE_DESTROYED:
                     self.players.remove(player)
                     self.enemies.empty()
                     self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
                     self.show_menu()
-                    
+                
+                if self.mode == 'Multi Player' and player.ptype == 'local':
+                    if player.action == 'IDLE':
+                        continue
+                    data = {'pid':player.pid , 'msg':'Action', 'Action':player.action}
+                    for play in self.players:
+                        if play.ptype != 'local':
+                            self.network.send_data(data,play.ip)
+
                 for enemy in self.enemies:
                     bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
                     if bullect_collided is not None:
@@ -182,6 +220,8 @@ class Gameplay:
                         self.enemies.remove(enemy)
 
 
+            if self.mode == 'Multi Player':
+                continue
 
             for enemy in self.enemies:
                 enemy.get_action(self.players)
