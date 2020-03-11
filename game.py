@@ -30,7 +30,6 @@ class Gameplay:
         self.tiny_font = pygame.font.Font('freesansbold.ttf', 18)
         self.active_menu = 'Main menu'
         self.network = Network(self)
-
         self.start_game = False
         
         self.enemies = pygame.sprite.Group()
@@ -111,9 +110,7 @@ class Gameplay:
                 if event.type==pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.active_menu = 'Main menu'
-                        self.network.allowconnection = False
-                        self.network.server_flag = False
-                        self.network.listen = False
+                        self.network.reset()
 
                     if event.key==pygame.K_UP and selected > 1:
                         selected -= 1
@@ -126,7 +123,6 @@ class Gameplay:
                             if selected == 1:
                                 self.mode = 'Single Player'
                                 # reverting back to set-repeat 10
-                                pygame.key.set_repeat(20)
                                 pygame.mixer.music.fadeout(2000)
                                 p1 = Player('Warrior',100)
                                 self.add_player(p1)
@@ -149,31 +145,43 @@ class Gameplay:
                                 self.active_menu = 'Show connected clients'                            
                             elif selected == 2:
                                 selected = 1
-                                self.network.start_listen_server() 
+                                self.network.start_listen_server()
+                                self.network.start_server()
                                 self.active_menu = 'List available servers'
 
                         elif self.active_menu == 'List available servers':
                             self.network.listen = False
-                            p1 = Player('Remote Player',100)
+                            p1 = Player('Player 2',100)
+                            p1.ip = self.network.serverIP
                             self.add_player(p1)
                             data = {'pid':p1.pid , 'msg':'Add Player', 
-                                    'p_info':{'pname':p1.name} }
+                                    'p_info':{'pname':p1.name,'ip':p1.ip} }
 
                             self.network.send_data(data,self.available_servers[selected-1][0])
-                            self.network.start_server()
+                            # self.network.start_server()
 
                         elif self.active_menu == 'Show connected clients':
+                            self.network.allowconnection = False
                             p1 = Player('Warrior',100)
+                            p1.ip = self.network.serverIP
                             self.add_player(p1)
+                            for player in self.players:
+                                if player.ptype == 'remote':
+                                    for player1 in self.players:
+                                        data = {'pid':player1.pid , 'msg':'Add Player', 
+                                                'p_info':{'pname':player1.name,'ip':player1.ip}}
+                                        self.network.send_data(data,player.ip)
+
                             self.start_game = True
                             data = {'msg':'Start Game'}
                             for player in self.players:
                                 if player.ptype == 'remote':
                                     self.network.send_data(data,player.ip)
 
-            
-                if self.start_game:
-                    self.start()        
+            # print('pass')
+            if self.start_game:
+                print('Game started')
+                self.start()        
 
 
             self.timer.tick(FPS)
@@ -189,7 +197,8 @@ class Gameplay:
 
 
     def start(self):
-
+        pygame.key.set_repeat(20)
+        # self.update_screen()
         while True:
             for player in self.players:
                 player.get_action()
@@ -201,12 +210,11 @@ class Gameplay:
                     self.show_menu()
                 
                 if self.mode == 'Multi Player' and player.ptype == 'local':
-                    if player.action == 'IDLE':
-                        continue
-                    data = {'pid':player.pid , 'msg':'Action', 'Action':player.action}
-                    for play in self.players:
-                        if play.ptype != 'local':
-                            self.network.send_data(data,play.ip)
+                    if player.action != 'IDLE':
+                        data = {'pid':player.pid , 'msg':'Action', 'Action':player.action}
+                        for play in self.players:
+                            if play.ptype != 'local':
+                                self.network.send_data(data,play.ip)
 
                 for enemy in self.enemies:
                     bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
@@ -219,7 +227,8 @@ class Gameplay:
                     if enemy.state == enemy.STATE_DESTROYED:
                         self.enemies.remove(enemy)
 
-
+            self.update_screen()
+            self.timer.tick(FPS)
             if self.mode == 'Multi Player':
                 continue
 
@@ -243,5 +252,3 @@ class Gameplay:
                     Enemy(self.enemies)
 
 
-            self.update_screen()
-            self.timer.tick(FPS)

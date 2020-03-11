@@ -9,7 +9,9 @@ class Network:
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         # self.connection.settimeout(0.2)
-        self.serverIP = ''
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        self.serverIP = s.getsockname()[0]
         self.serverPort = 6000
         self.allowconnection = True
         self.server_flag = True
@@ -20,7 +22,7 @@ class Network:
         conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         conn.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         message = b'Tank War Server'
-
+        self.allowconnection = True
         while self.allowconnection:
             conn.sendto(message, ('<broadcast>', 37020))
             # print("message sent!")
@@ -39,14 +41,15 @@ class Network:
         t.start()
 
     def server(self):
-        self.listen = False
+        # self.listen = False
+        print('Server started')
         self.connection.bind(('', self.serverPort))
         self.server_flag = True
         while self.server_flag:
             add_player = True
             data_str, addr = self.connection.recvfrom(1024)
             data = pickle.loads(data_str)
-            print(data)
+            # print(data)
 
             if data['msg'] == 'Add Player' and self.allowconnection:
                 pname = data['p_info']['pname']
@@ -58,13 +61,14 @@ class Network:
                 if add_player:
                     player = Player(pname,100,ptype='remote')
                     player.pid = data['pid']
-                    player.ip = addr[0]
+                    player.ip = data['p_info']['ip']
                     self.gameplay.add_player(player)
                     print('New Player Added')
 
             elif data['msg'] == 'Action':
                 for player in self.gameplay.players:
                     if player.pid == data['pid']:
+                        # print(player.pid,data['Action'])
                         player.action = data['Action']
                         player.tank.move(player.action)
 
@@ -109,4 +113,11 @@ class Network:
 
     def get_action(self,ip):
         self.connection.sendto(b'Get Action',(ip,6000))
+
+    def reset(self):
+        self.listen = False
+        self.server_flag = False
+        self.allowconnection = False
+        self.connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     

@@ -46,8 +46,8 @@ class Player:
                 #     self.action = 'IDLE'
 
         
-        # else:
-        #     self.network.get_action(self.ip)
+        else:
+            self.action = 'IDLE'
         
         if self.EXIT_GAME:
             # self.network.stop()
