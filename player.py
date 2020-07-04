@@ -74,7 +74,7 @@ class Enemy(Tank,pygame.sprite.Sprite):
         if current_tick - self.prev_fire_tick > 200:
             self.prev_fire_tick = current_tick
             # states.append('FIRE')
-            self.move('FIRE')
+            # self.move('FIRE')
         else:
             movement_prob = random.random()
             if movement_prob < 0.5:
