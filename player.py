@@ -16,7 +16,7 @@ class Player:
         self.ip = ''
         self.prev_fire_tick = pygame.time.get_ticks()
         self.EXIT_GAME = False
-
+        self.mute = False
 
     def get_action(self):
         
@@ -41,7 +41,10 @@ class Player:
                         if current_tick - self.prev_fire_tick > 400:
                             self.prev_fire_tick = current_tick
                             self.action = 'FIRE'
-        
+
+                    if event.key==pygame.K_m:
+                            self.mute = not self.mute
+
                 # elif event.type == pygame.KEYUP:
                 #     self.action = 'IDLE'
 
@@ -55,7 +58,7 @@ class Player:
             pygame.quit()
             # exit(0)
 
-        self.tank.move(self.action)
+        self.tank.move(self.action, self.mute)
         
 
 class Enemy(Tank,pygame.sprite.Sprite):

@@ -111,6 +111,9 @@ class Gameplay:
                     if event.key == pygame.K_ESCAPE:
                         self.active_menu = 'Main menu'
                         self.network.reset()
+                    
+                    if event.key==pygame.K_m:
+                            s.mute_toggle()
 
                     if event.key==pygame.K_UP and selected > 1:
                         selected -= 1
