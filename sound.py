@@ -39,5 +39,4 @@ class Sound:
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play()
 
-menu_sound = Sound()
-tank_sound = Sound()
+game_sound = Sound()

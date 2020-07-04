@@ -2,7 +2,7 @@ from tank import Tank, Bullet
 # from .game import HEIGHT, WIDTH   #### cyclic import need to fix
 import uuid, random
 import pygame
-from sound import tank_sound
+from sound import game_sound
 
 
 class Player:
@@ -29,12 +29,10 @@ class Player:
                 elif event.type == pygame.KEYDOWN:
 
                     if event.key==pygame.K_m:
-                        tank_sound.mute_toggle()
+                        game_sound.mute_toggle()
 
                     if event.type == pygame.K_q:
-                        # self.EXIT_GAME = True
-                        print('stop')
-                        pygame.quit()
+                        self.EXIT_GAME = True
 
                     if event.key == pygame.K_UP :
                         self.action = "UP"

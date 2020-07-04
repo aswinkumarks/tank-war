@@ -1,20 +1,10 @@
 import pygame
 from player import Enemy,Player
 from network import Network
-from sound import menu_sound, tank_sound
+from sound import game_sound
 from level import Level
+from constants import *
 
-FPS = 30
-BLACK = (0,0,0)
-YELLOW = (255,255,0)
-BLUE = (0,0,200)
-RED = (255,0,0)
-WHITE = (255,255,255)
-GREEN = (0, 255, 0)
-
-TILE_SIZE = 25
-HEIGHT = 26*TILE_SIZE
-WIDTH = 26*TILE_SIZE
 # s = Sound()
 
 class Gameplay:
@@ -38,6 +28,12 @@ class Gameplay:
         self.enemies = pygame.sprite.Group()
         self.no_enemies = 2
 
+        # mute icon
+        self.mute_icon = pygame.image.load("Sprites/mute.png")
+        self.mute_icon = pygame.transform.scale(self.mute_icon, (20, 20))
+        self.mute_rect = self.mute_icon.get_rect()
+        self.mute_rect = self.mute_rect.move((10,10))
+
         if full_screen == True:
             self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
         else:
@@ -48,12 +44,15 @@ class Gameplay:
     def update_screen(self):
         self.screen.fill(BLACK)
         self.level.tiles.draw(self.screen)
+        if game_sound.mute:
+            self.screen.blit(self.mute_icon, self.mute_rect)
+
         for player in self.players:
             player.tank.draw(self.screen)
         
         for enemy in self.enemies:
             enemy.draw(self.screen)
-            
+
         pygame.display.flip()
 
     def text_format_draw(self, text, color, x, y, font, menu_id, selected):
@@ -92,6 +91,9 @@ class Gameplay:
             for i in range(len(self.players)):
                 self.text_format_draw(self.players[i].name,WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, -1, 2)
 
+        if game_sound.mute:
+            self.screen.blit(self.mute_icon, self.mute_rect)
+
         pygame.display.flip()
                                     
 
@@ -100,7 +102,7 @@ class Gameplay:
         self.no_enemies = 2
         selected = 1
         self.draw_menu(selected)
-        menu_sound.menu_music()
+        game_sound.menu_music()
 
         while True:
             no_entries = {'Main menu':4, 'Multi-player menu':2,
@@ -118,7 +120,7 @@ class Gameplay:
                         self.network.reset()
                     
                     if event.key==pygame.K_m:
-                            menu_sound.mute_toggle()
+                            game_sound.mute_toggle()
 
                     if event.key==pygame.K_UP and selected > 1:
                         selected -= 1
@@ -231,7 +233,7 @@ class Gameplay:
                         bullect_collided.kill()
                         # enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
                         enemy.state = enemy.STATE_EXPLODING
-                        tank_sound.crash_sound()
+                        game_sound.crash_sound()
                         
                     if enemy.state == enemy.STATE_DESTROYED:
                         self.enemies.remove(enemy)
@@ -248,11 +250,11 @@ class Gameplay:
                     if bullect_collided is not None:
                         player.hp -= 20
                         print('HP:',player.hp)
-                        tank_sound.damage_sound()
+                        game_sound.damage_sound()
                         bullect_collided.kill()
                         if player.hp <= 0:
                             player.tank.state = player.tank.STATE_EXPLODING           
-                            tank_sound.crash_sound()
+                            game_sound.crash_sound()
 
 
             if len(self.enemies) == 0:
