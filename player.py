@@ -2,6 +2,7 @@ from tank import Tank, Bullet
 # from .game import HEIGHT, WIDTH   #### cyclic import need to fix
 import uuid, random
 import pygame
+from sound import tank_sound
 
 
 class Player:
@@ -16,7 +17,6 @@ class Player:
         self.ip = ''
         self.prev_fire_tick = pygame.time.get_ticks()
         self.EXIT_GAME = False
-        self.mute = False
 
     def get_action(self):
         
@@ -27,6 +27,15 @@ class Player:
                     self.EXIT_GAME = True
                     
                 elif event.type == pygame.KEYDOWN:
+
+                    if event.key==pygame.K_m:
+                        tank_sound.mute_toggle()
+
+                    if event.type == pygame.K_q:
+                        # self.EXIT_GAME = True
+                        print('stop')
+                        pygame.quit()
+
                     if event.key == pygame.K_UP :
                         self.action = "UP"
                     elif event.key == pygame.K_DOWN :
@@ -42,9 +51,6 @@ class Player:
                             self.prev_fire_tick = current_tick
                             self.action = 'FIRE'
 
-                    if event.key==pygame.K_m:
-                            self.mute = not self.mute
-
                 # elif event.type == pygame.KEYUP:
                 #     self.action = 'IDLE'
 
@@ -58,7 +64,7 @@ class Player:
             pygame.quit()
             # exit(0)
 
-        self.tank.move(self.action, self.mute)
+        self.tank.move(self.action)
         
 
 class Enemy(Tank,pygame.sprite.Sprite):
@@ -72,12 +78,10 @@ class Enemy(Tank,pygame.sprite.Sprite):
         self.prev_fire_tick = pygame.time.get_ticks()
 
     def get_action(self,players):
-        states = ["IDLE","UP", "LEFT", "DOWN" , "RIGHT"]
         current_tick = pygame.time.get_ticks()
         if current_tick - self.prev_fire_tick > 200:
             self.prev_fire_tick = current_tick
-            # states.append('FIRE')
-            self.move('FIRE')
+            # self.move('FIRE')
         else:
             movement_prob = random.random()
             if movement_prob < 0.5:
@@ -97,6 +101,4 @@ class Enemy(Tank,pygame.sprite.Sprite):
                 action = 'UP'
 
             self.move(action)
-        # self.move(random.choice(states))
-
    

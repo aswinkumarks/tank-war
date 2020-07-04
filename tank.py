@@ -1,7 +1,7 @@
 import pygame
-from sound import Sound 
+# from sound import Sound 
 from threading import Thread
-s = Sound()
+from sound import tank_sound
 
 class Tank:
     (STATE_ALIVE,STATE_EXPLODING,STATE_DESTROYED) = range(3)
@@ -48,7 +48,7 @@ class Tank:
         elif self.direction == 'LEFT' or self.direction == 'RIGHT':
             bullet.rect = bullet.rect.move([15,10])
 
-        s.fire_sound()
+        tank_sound.fire_sound()
 
     def move(self,action):
         if self.state == self.STATE_DESTROYED or self.state == self.STATE_EXPLODING:

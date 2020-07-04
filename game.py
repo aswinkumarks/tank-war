@@ -1,7 +1,8 @@
 import pygame
 from player import Enemy,Player
 from network import Network
-from sound import Sound
+# from sound import Sound
+from sound import menu_sound, tank_sound
 
 FPS = 30
 BLACK = (0,0,0)
@@ -13,7 +14,7 @@ GREEN = (0, 255, 0)
 
 HEIGHT = 480
 WIDTH = 640
-s = Sound()
+# s = Sound()
 
 class Gameplay:
     def __init__(self,full_screen=False):
@@ -95,7 +96,7 @@ class Gameplay:
         self.no_enemies = 2
         selected = 1
         self.draw_menu(selected)
-        s.menu_music()
+        menu_sound.menu_music()
 
         while True:
             no_entries = {'Main menu':4, 'Multi-player menu':2,
@@ -113,7 +114,7 @@ class Gameplay:
                         self.network.reset()
                     
                     if event.key==pygame.K_m:
-                            s.mute_toggle()
+                            menu_sound.mute_toggle()
 
                     if event.key==pygame.K_UP and selected > 1:
                         selected -= 1
@@ -225,7 +226,7 @@ class Gameplay:
                         bullect_collided.kill()
                         # enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
                         enemy.state = enemy.STATE_EXPLODING
-                        s.crash_sound()
+                        tank_sound.crash_sound()
                         
                     if enemy.state == enemy.STATE_DESTROYED:
                         self.enemies.remove(enemy)
@@ -242,11 +243,11 @@ class Gameplay:
                     if bullect_collided is not None:
                         player.hp -= 20
                         print('HP:',player.hp)
-                        s.damage_sound()
+                        tank_sound.damage_sound()
                         bullect_collided.kill()
                         if player.hp <= 0:
                             player.tank.state = player.tank.STATE_EXPLODING           
-                            s.crash_sound()
+                            tank_sound.crash_sound()
 
 
             if len(self.enemies) == 0:
