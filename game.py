@@ -1,8 +1,8 @@
 import pygame
 from player import Enemy,Player
 from network import Network
-# from sound import Sound
 from sound import menu_sound, tank_sound
+from level import Level
 
 FPS = 30
 BLACK = (0,0,0)
@@ -12,8 +12,9 @@ RED = (255,0,0)
 WHITE = (255,255,255)
 GREEN = (0, 255, 0)
 
-HEIGHT = 480
-WIDTH = 640
+TILE_SIZE = 25
+HEIGHT = 26*TILE_SIZE
+WIDTH = 26*TILE_SIZE
 # s = Sound()
 
 class Gameplay:
@@ -22,6 +23,7 @@ class Gameplay:
         infoObject = pygame.display.Info()
         pygame.display.set_caption("Tank War")
         pygame.key.set_repeat(10)
+        self.level = Level()
         self.mode = 'Single Player'
         self.players = []
         self.available_servers = []
@@ -45,6 +47,7 @@ class Gameplay:
 
     def update_screen(self):
         self.screen.fill(BLACK)
+        self.level.tiles.draw(self.screen)
         for player in self.players:
             player.tank.draw(self.screen)
         
@@ -66,6 +69,7 @@ class Gameplay:
 
     def draw_menu(self, selction):
         self.screen.fill(BLACK)
+        # self.level.tiles.draw(self.screen)
         if self.active_menu == 'Main menu':
             self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
             self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
@@ -203,6 +207,7 @@ class Gameplay:
     def start(self):
         pygame.key.set_repeat(20)
         # self.update_screen()
+        self.level.load_level()
         while True:
             for player in self.players:
                 player.get_action()
