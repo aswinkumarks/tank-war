@@ -1,12 +1,13 @@
 import pygame
 import os
-from constants import *
+import settings
 
 
 class Tile(pygame.sprite.Sprite):
 	(TILE_EMPTY, TILE_BRICK, TILE_STEEL) = '.','#','@'
 	def __init__(self,tiles,ttype,pos):
 		pygame.sprite.Sprite.__init__(self, tiles)
+		settings.allObstacles.add(self)
 		self.ttype = ttype
 		if ttype == self.TILE_BRICK:
 			brick = pygame.image.load("Sprites/brick.png")
@@ -37,9 +38,9 @@ class Level:
 			for ch in row:
 				if ch == self.TILE_BRICK:
 					Tile(self.tiles,ch,(x, y))
-				x += TILE_SIZE
+				x += settings.TILE_SIZE
 			x = 0
-			y += TILE_SIZE
+			y += settings.TILE_SIZE
 
 		return True
 

@@ -2,6 +2,7 @@ from tank import Tank, Bullet
 # from .game import HEIGHT, WIDTH   #### cyclic import need to fix
 import uuid, random
 import pygame
+import settings
 from sound import game_sound
 
 
@@ -65,12 +66,12 @@ class Player:
 		self.tank.move(self.action)
 		
 
-class Enemy(Tank,pygame.sprite.Sprite):
+class Enemy(Tank):
 	def __init__(self,enemies):
 		super().__init__()
 		pygame.sprite.Sprite.__init__(self, enemies)
 		self.hp = 1
-		self.sprites = self.sprites = pygame.image.load("Sprites/tank-green.png")
+		self.sprites = pygame.image.load("Sprites/tank-green.png")
 		self.rect = self.rect.move([random.randint(640/4, 640-50), random.randint(480/3, 480 - 50)])
 		self.movement_speed = 3
 		self.prev_fire_tick = pygame.time.get_ticks()

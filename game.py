@@ -3,8 +3,9 @@ from player import Enemy,Player
 from network import Network
 from sound import game_sound
 from level import Level
-from constants import *
-
+from settings import *
+import settings
+global allObstacles
 # s = Sound()
 
 class Gameplay:
@@ -215,21 +216,17 @@ class Gameplay:
 				
 				if self.mode == 'Multi Player' and player.ptype == 'local':
 					if player.action != 'IDLE':
-						data = {'pid':player.pid , 'msg':'Action', 'Action':player.action}
-						for play in self.players:
-							if play.ptype != 'local':
-								self.network.send_data(data,play.addr)
+						self.network.send_action(player)
 
 				for enemy in self.enemies:
 					bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
 					if bullect_collided is not None:
+						print(len(settings.allObstacles))
 						bullect_collided.kill()
 						# enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
 						enemy.state = enemy.STATE_EXPLODING
 						game_sound.crash_sound()
-						
-					if enemy.state == enemy.STATE_DESTROYED:
-						self.enemies.remove(enemy)
+
 
 			self.update_screen()
 			self.timer.tick(FPS)
@@ -252,7 +249,7 @@ class Gameplay:
 
 
 			if len(self.enemies) == 0:
-				self.no_enemies += 1
+				# self.no_enemies += 1
 				for _ in range(self.no_enemies):
 					Enemy(self.enemies)
 

@@ -126,11 +126,14 @@ class Network:
 
 	def send_data(self,data,addr):
 		data_string = pickle.dumps(data)
-		print(addr)
 		self.connection.sendto(data_string,addr)
 
-	def get_action(self,ip):
-		self.connection.sendto(b'Get Action',(ip,6000))
+	def send_action(self,player):
+		data = {'pid':player.pid , 'msg':'Action', 'Action':player.action}
+		for other_player in self.gameplay.players:
+			if other_player.ptype != 'local':
+				self.send_data(data, other_player.addr)
+		
 
 	def join_server(self,player,selection):
 		self.listen = False

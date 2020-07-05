@@ -1,3 +1,10 @@
+import pygame
+
+def sprite_obstacles_init():
+	global allObstacles
+	allObstacles = pygame.sprite.Group()
+
+
 FPS = 30
 
 BLACK = (0,0,0)
