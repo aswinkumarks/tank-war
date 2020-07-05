@@ -1,5 +1,7 @@
 import pygame
 import os
+from constants import *
+
 
 class Tile(pygame.sprite.Sprite):
 	(TILE_EMPTY, TILE_BRICK, TILE_STEEL) = '.','#','@'
@@ -10,18 +12,14 @@ class Tile(pygame.sprite.Sprite):
 			brick = pygame.image.load("Sprites/brick.png")
 			self.image = pygame.transform.scale(brick, (25, 25))
 
-		elif ttype == self.TILE_EMPTY:
-			self.image = pygame.Surface((25, 25))
-		else:
-			return True
-
 		self.rect = self.image.get_rect()
 		self.rect = self.rect.move(pos)
 
 
 class Level:
-	TILE_SIZE = 25
+
 	(TILE_EMPTY, TILE_BRICK, TILE_STEEL) = '.','#','@'
+
 	def __init__(self):
 		self.tiles = pygame.sprite.Group()
 		self.lno = 1
@@ -37,10 +35,11 @@ class Level:
 		x, y = 0, 0
 		for row in data:
 			for ch in row:
-				Tile(self.tiles,ch,(x, y))
-				x += self.TILE_SIZE
+				if ch == self.TILE_BRICK:
+					Tile(self.tiles,ch,(x, y))
+				x += TILE_SIZE
 			x = 0
-			y += self.TILE_SIZE
+			y += TILE_SIZE
 
 		return True
 
