@@ -64,17 +64,19 @@ class Network:
 			# print(data)
 
 			if data['msg'] == 'Add Player' and self.allowconnection:
-				pname = data['p_info']['pname']
+				pid = data['pid']
 				for player in self.gameplay.players:
-					if player.name == pname:
+					if player.pid == pid:
 						print('Already added player')
 						add_player = False
 						break
 
 				if add_player:
-					player = Player(pname,100,ptype='remote')
+					player = Player(data['p_info']['pname'],100,ptype='remote')
 					player.pid = data['pid']
 					player.addr = data['p_info']['addr']
+					player.tank.rect.top = data['p_info']['pos'][0]
+					player.tank.rect.left = data['p_info']['pos'][1]
 					self.gameplay.add_player(player)
 					print('New Player Added')
 
@@ -138,7 +140,10 @@ class Network:
 	def join_server(self,player,selection):
 		self.listen = False
 		data = {'pid':player.pid , 'msg':'Add Player', 
-				'p_info':{'pname':player.name,'addr':player.addr} }
+				'p_info':{'pname':player.name,
+						  'addr':player.addr,
+						  'pos':(player.tank.rect.top,player.tank.rect.left)} 
+				}
 
 		self.send_data(data,self.gameplay.available_servers[selection])
 
@@ -151,7 +156,10 @@ class Network:
 
 			for player1 in self.gameplay.players:
 				data = {'pid':player1.pid , 'msg':'Add Player', 
-						'p_info':{'pname':player1.name,'addr':player1.addr}}
+						'p_info':{'pname':player1.name,
+						  		  'addr':player1.addr,
+						  		  'pos':(player1.tank.rect.top,player1.tank.rect.left)} 
+						}
 				self.send_data(data,player.addr)
 
 		self.gameplay.start_game = True

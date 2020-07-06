@@ -2,6 +2,7 @@ import pygame
 # from sound import Sound 
 from threading import Thread
 from sound import game_sound
+import random
 import settings
 
 class Tank(pygame.sprite.Sprite):
@@ -11,9 +12,16 @@ class Tank(pygame.sprite.Sprite):
 		# pygame.sprite.Sprite.__init__(self, settings.allObstacles)
 		self.sprites = pygame.image.load("Sprites/tank-blue.png")
 		tank_image = self.sprites.subsurface(11,7,40,54)
-		self.image = pygame.transform.scale(tank_image,(50,50))
+		self.image = pygame.transform.scale(tank_image,(48,48))
 		# self.rect = self.image.get_rect()
-		self.rect = pygame.Rect(0,0,45,45)
+		x = random.randint(0, settings.WIDTH - 45)
+		y = random.randint(0, settings.HEIGHT - 45)
+		self.rect = pygame.Rect(x,y,43,43)
+		while pygame.sprite.spritecollideany(self,settings.allObstacles) is not None:
+			x = random.randint(0, settings.WIDTH - 43)
+			y = random.randint(0, settings.HEIGHT - 43)
+			self.rect = pygame.Rect(x,y,43,43)
+
 		self.movement_speed = 5
 		self.state = self.STATE_ALIVE
 
@@ -113,7 +121,7 @@ class Bullet(pygame.sprite.Sprite):
 
 		self.image = Bullet.image
 		# self.rect = self.image.get_rect()
-		self.rect = pygame.Rect(0,0,3,3)
+		self.rect = pygame.Rect(0,0,5,5)
 		self.update_position_vec = [0,5]
 		self.rotate_bullet(direction)
 	

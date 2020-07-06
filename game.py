@@ -106,6 +106,7 @@ class Gameplay:
 		selected = 1
 		self.draw_menu(selected)
 		game_sound.menu_music()
+		self.level.load_level()
 
 		while True:
 			no_entries = {'Main menu':4, 'Multi-player menu':2,
@@ -203,7 +204,7 @@ class Gameplay:
 	def start(self):
 		pygame.key.set_repeat(20)
 		# self.update_screen()
-		self.level.load_level()
+		# self.level.load_level()
 		while True:
 			for player in self.players:
 				player.get_action()
