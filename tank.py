@@ -1,26 +1,44 @@
 import pygame
-# from sound import Sound 
-from threading import Thread
 from sound import game_sound
 import random
+import uuid
 import settings
+
+allTanks = []
 
 class Tank(pygame.sprite.Sprite):
 	(STATE_ALIVE,STATE_EXPLODING,STATE_DESTROYED) = range(3)
 
-	def __init__(self):
-		# pygame.sprite.Sprite.__init__(self, settings.allObstacles)
-		self.sprites = pygame.image.load("Sprites/tank-blue.png")
+	def __init__(self, colour = "Blue"):
+		super().__init__()
+		allTanks.append(self)
+		self.id = str(uuid.uuid4())
+		self.hp = 100
+
+		if colour == "Blue":
+			self.sprites = pygame.image.load("Sprites/tank-blue.png")
+		else:
+			self.sprites = pygame.image.load("Sprites/tank-green.png")
+
 		tank_image = self.sprites.subsurface(11,7,40,54)
 		self.image = pygame.transform.scale(tank_image,(48,48))
 		# self.rect = self.image.get_rect()
-		x = random.randint(0, settings.WIDTH - 45)
-		y = random.randint(0, settings.HEIGHT - 45)
-		self.rect = pygame.Rect(x,y,43,43)
-		while pygame.sprite.spritecollideany(self,settings.allObstacles) is not None:
+
+		while True:
 			x = random.randint(0, settings.WIDTH - 43)
 			y = random.randint(0, settings.HEIGHT - 43)
 			self.rect = pygame.Rect(x,y,43,43)
+			collided_brick = pygame.sprite.spritecollideany(self,settings.allObstacles)
+			collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
+			flag = False
+
+			for coll_tank in collided_tanks:
+				if coll_tank != self:
+					flag = True
+					break
+
+			if collided_brick == None and flag == False:
+				break
 
 		self.movement_speed = 5
 		self.state = self.STATE_ALIVE
@@ -82,27 +100,40 @@ class Tank(pygame.sprite.Sprite):
 		elif action == 'FIRE':
 			self.fire()
 
-		collided = pygame.sprite.spritecollideany(self,settings.allObstacles)
+		collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
+		collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
 		
-		if collided is not None:
+		if collided_bricks is not None:
+			# print("Collided",self)
 			self.rect = prev_rect
+
+		for coll_tank in collided_tanks:
+			if coll_tank != self:
+				print("Collition with ",coll_tank.id)
+				self.rect = prev_rect
+				break
 
 		if action != 'IDLE' and action != 'FIRE':
 			self.change_direction(action)
 			self.direction = action
 
 	def draw(self,screen):
+		if self.hp <= 0:
+			self.state = self.STATE_EXPLODING
+			game_sound.crash_sound()
+
 		if self.state == self.STATE_ALIVE:
-			self.bullets.update()
+			self.bullets.update(self)
 			self.bullets.draw(screen)
 			screen.blit(self.image,self.rect)
+
 		elif self.state == self.STATE_EXPLODING:
 			if len(self.explosion_images) == 0:
 				self.state = self.STATE_DESTROYED
+				print(len(allTanks)," Killed ",self.id)
+				allTanks.remove(self)
 				self.kill()
-				self.remove(settings.allObstacles)
-				if settings.allObstacles.has(self):
-					settings.allObstacles.remove(self)
+				del self
 				return
 
 			screen.blit(self.explosion_images[0],self.rect)
@@ -121,22 +152,33 @@ class Bullet(pygame.sprite.Sprite):
 
 		self.image = Bullet.image
 		# self.rect = self.image.get_rect()
+		self.damage = 10
 		self.rect = pygame.Rect(0,0,5,5)
 		self.update_position_vec = [0,5]
 		self.rotate_bullet(direction)
 	
-	def update(self):
+	def update(self,mytank):
 		self.rect = self.rect.move(self.update_position_vec)
 
-		collided = pygame.sprite.spritecollideany(self,settings.allObstacles)
+		collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
+
+		for coll_tank in collided_tanks:
+			if coll_tank != mytank:
+				coll_tank.hp -= self.damage
+				game_sound.damage_sound()
+				self.kill()
+				return
+
+		collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
 
 		if self.rect[0] > settings.HEIGHT or self.rect[1] > settings.WIDTH \
 				or self.rect[1] < -10 or self.rect[0] < -10:
 			# print('Destroyed')
 			self.kill()
 
-		elif collided is not None:
+		elif collided_bricks is not None:
 			self.kill()
+			game_sound.damage_sound()
 
 	def rotate_bullet(self, new_direction):
 		if new_direction == 'UP':

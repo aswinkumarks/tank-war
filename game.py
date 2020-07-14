@@ -108,33 +108,38 @@ class Gameplay:
 		game_sound.menu_music()
 		self.level.load_level()
 
+		self.active_menu = 'Main menu'
+		self.start_game = False
+
+		self.players = []
+
 		while True:
 			no_entries = {'Main menu':4, 'Multi-player menu':2,
 						  'Show connected clients':3,
 						  'List available servers':len(self.available_servers)}
 
 			for event in pygame.event.get():
-				if event.type==pygame.QUIT:
+				if event.type == pygame.QUIT:
 					self.network.allowconnection = False
 					self.network.server_flag = False
 					self.network.listen = False
 					pygame.quit()
 
-				if event.type==pygame.KEYDOWN:
+				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_ESCAPE:
 						self.active_menu = 'Main menu'
 						self.network.reset()
 					
-					if event.key==pygame.K_m:
+					if event.key == pygame.K_m:
 							game_sound.mute_toggle()
 
-					if event.key==pygame.K_UP and selected > 1:
+					if event.key == pygame.K_UP and selected > 1:
 						selected -= 1
 					
-					elif event.key==pygame.K_DOWN and selected < no_entries[self.active_menu]:
+					elif event.key == pygame.K_DOWN and selected < no_entries[self.active_menu]:
 						selected += 1
 
-					if event.key==pygame.K_RETURN:
+					if event.key == pygame.K_RETURN:
 						# print(selected)
 						if self.active_menu == 'Main menu':
 							if selected == 1:
@@ -185,7 +190,6 @@ class Gameplay:
 				print('Game started')
 				self.start()        
 
-
 			self.timer.tick(FPS)
 			self.draw_menu(selected)
 								   
@@ -195,16 +199,10 @@ class Gameplay:
 			player.addr = (self.network.serverIP,self.network.serverPort)
 		
 		self.players.append(player)
-		# if self.mode=='Multi Player':
-		#     for player in self.players:
-		#         if player.ptype == 'remote':
-		#             pass
 
 
 	def start(self):
 		pygame.key.set_repeat(20)
-		# self.update_screen()
-		# self.level.load_level()
 		while True:
 			for player in self.players:
 				player.get_action()
@@ -219,16 +217,6 @@ class Gameplay:
 					if player.action != 'IDLE':
 						self.network.send_action(player)
 
-				for enemy in self.enemies:
-					bullect_collided = pygame.sprite.spritecollideany(enemy, player.tank.bullets)
-					if bullect_collided is not None:
-						print(len(settings.allObstacles))
-						bullect_collided.kill()
-						# enemy.explode(self.screen, [enemy.rect[0], enemy.rect[1]])
-						enemy.state = enemy.STATE_EXPLODING
-						game_sound.crash_sound()
-
-
 			self.update_screen()
 			self.timer.tick(FPS)
 
@@ -237,17 +225,6 @@ class Gameplay:
 
 			for enemy in self.enemies:
 				enemy.get_action(self.players)
-				for player in self.players:
-					bullect_collided = pygame.sprite.spritecollideany( player.tank, enemy.bullets)
-					if bullect_collided is not None:
-						player.hp -= 20
-						print('HP:',player.hp)
-						game_sound.damage_sound()
-						bullect_collided.kill()
-						if player.hp <= 0:
-							player.tank.state = player.tank.STATE_EXPLODING           
-							game_sound.crash_sound()
-
 
 			if len(self.enemies) == 0:
 				# self.no_enemies += 1

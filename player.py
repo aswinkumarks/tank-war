@@ -13,7 +13,6 @@ class Player:
 		self.pid = str(uuid.uuid4())
 		self.ptype = ptype
 		self.name = name
-		self.hp = hp
 		self.action = 'IDLE'
 		self.addr = ()
 		self.prev_fire_tick = pygame.time.get_ticks()
@@ -68,18 +67,17 @@ class Player:
 
 class Enemy(Tank):
 	def __init__(self,enemies):
-		super().__init__()
+		super().__init__(colour="Green")
 		pygame.sprite.Sprite.__init__(self, enemies)
-		self.hp = 1
-		self.sprites = pygame.image.load("Sprites/tank-green.png")
+		self.hp = 20
 		self.movement_speed = 3
 		self.prev_fire_tick = pygame.time.get_ticks()
 
 	def get_action(self,players):
 		current_tick = pygame.time.get_ticks()
-		if current_tick - self.prev_fire_tick > 200:
+		if current_tick - self.prev_fire_tick > 1000:
 			self.prev_fire_tick = current_tick
-			# self.move('FIRE')
+			self.move('FIRE')
 		else:
 			movement_prob = random.random()
 			if movement_prob < 0.5:
