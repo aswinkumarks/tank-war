@@ -227,8 +227,9 @@ class Gameplay:
 				enemy.get_action(self.players)
 
 			if len(self.enemies) == 0:
-				# self.no_enemies += 1
+				self.no_enemies += 1
 				for _ in range(self.no_enemies):
 					Enemy(self.enemies)
+			# print(pygame.time.get_ticks())
 
 

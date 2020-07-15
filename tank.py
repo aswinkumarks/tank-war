@@ -25,6 +25,7 @@ class Tank(pygame.sprite.Sprite):
 		# self.rect = self.image.get_rect()
 
 		while True:
+			# print("Finding co-ordinate")
 			x = random.randint(0, settings.WIDTH - 43)
 			y = random.randint(0, settings.HEIGHT - 43)
 			self.rect = pygame.Rect(x,y,43,43)
@@ -101,24 +102,25 @@ class Tank(pygame.sprite.Sprite):
 			self.fire()
 
 		collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
-		collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
 		
 		if collided_bricks is not None:
 			# print("Collided",self)
 			self.rect = prev_rect
-
-		for coll_tank in collided_tanks:
-			if coll_tank != self:
-				print("Collition with ",coll_tank.id)
-				self.rect = prev_rect
-				break
+		else:
+			collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
+			for coll_tank in collided_tanks:
+				if coll_tank != self:
+					print("Collition with ",coll_tank.id)
+					self.rect = prev_rect
+					break
+			# pass
 
 		if action != 'IDLE' and action != 'FIRE':
 			self.change_direction(action)
 			self.direction = action
 
 	def draw(self,screen):
-		if self.hp <= 0:
+		if self.hp <= 0 and self.state != self.STATE_EXPLODING:
 			self.state = self.STATE_EXPLODING
 			game_sound.crash_sound()
 
@@ -130,11 +132,16 @@ class Tank(pygame.sprite.Sprite):
 		elif self.state == self.STATE_EXPLODING:
 			if len(self.explosion_images) == 0:
 				self.state = self.STATE_DESTROYED
-				print(len(allTanks)," Killed ",self.id)
-				allTanks.remove(self)
-				self.kill()
-				del self
-				return
+				if len(self.bullets) > 0:
+					self.bullets.update(self)
+					self.bullets.draw(screen)
+					return
+				else:
+					print(len(allTanks)," Killed ",self.id)
+					allTanks.remove(self)
+					self.kill()
+					# del self
+					return
 
 			screen.blit(self.explosion_images[0],self.rect)
 			self.explosion_images.pop(0)
@@ -160,25 +167,26 @@ class Bullet(pygame.sprite.Sprite):
 	def update(self,mytank):
 		self.rect = self.rect.move(self.update_position_vec)
 
-		collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
-
-		for coll_tank in collided_tanks:
-			if coll_tank != mytank:
-				coll_tank.hp -= self.damage
-				game_sound.damage_sound()
-				self.kill()
-				return
-
-		collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
-
 		if self.rect[0] > settings.HEIGHT or self.rect[1] > settings.WIDTH \
 				or self.rect[1] < -10 or self.rect[0] < -10:
 			# print('Destroyed')
 			self.kill()
+		
+		else:
+			collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
+			if collided_bricks is not None:
+				self.kill()
+				game_sound.damage_sound()
+			else:
+				collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
 
-		elif collided_bricks is not None:
-			self.kill()
-			game_sound.damage_sound()
+				for coll_tank in collided_tanks:
+					if coll_tank != mytank:
+						coll_tank.hp -= self.damage
+						game_sound.damage_sound()
+						self.kill()
+						return
+
 
 	def rotate_bullet(self, new_direction):
 		if new_direction == 'UP':

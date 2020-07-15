@@ -71,30 +71,33 @@ class Enemy(Tank):
 		pygame.sprite.Sprite.__init__(self, enemies)
 		self.hp = 20
 		self.movement_speed = 3
-		self.prev_fire_tick = pygame.time.get_ticks()
+		self.prev_fire_tick = 0
 
 	def get_action(self,players):
 		current_tick = pygame.time.get_ticks()
-		if current_tick - self.prev_fire_tick > 1000:
+		# if current_tick - self.prev_fire_tick > 1000:
+		# 	self.prev_fire_tick = current_tick
+		# 	self.move('FIRE')
+		# else:
+		movement_prob = random.random()
+		if movement_prob < 0.05 and \
+			(current_tick - self.prev_fire_tick) > 500:
 			self.prev_fire_tick = current_tick
 			self.move('FIRE')
-		else:
-			movement_prob = random.random()
-			if movement_prob < 0.5:
-				return
+			return
 
-			player = random.choice(players)
-			p_x = player.tank.rect[0]
-			p_y = player.tank.rect[1]
-			action = 'IDLE'
-			if p_x - self.rect[0] > 5:
-				action = 'RIGHT'
-			elif p_x - self.rect[0] < -5:
-				action = 'LEFT'
-			elif p_y - self.rect[1] > 5:
-				action = 'DOWN'
-			elif p_y - self.rect[1] < -5:
-				action = 'UP'
+		player = random.choice(players)
+		p_x = player.tank.rect[0]
+		p_y = player.tank.rect[1]
+		action = 'IDLE'
+		if p_x - self.rect[0] > 5:
+			action = 'RIGHT'
+		elif p_x - self.rect[0] < -5:
+			action = 'LEFT'
+		elif p_y - self.rect[1] > 5:
+			action = 'DOWN'
+		elif p_y - self.rect[1] < -5:
+			action = 'UP'
 
-			self.move(action)
+		self.move(action)
    
