@@ -184,7 +184,7 @@ class Gameplay:
 					p1 = Player('Warrior',100)
 					self.add_player(p1)
 					Enemy(self.enemies)
-					Enemy(self.enemies)
+					# Enemy(self.enemies)
 
 				pygame.mixer.music.fadeout(2000)
 				print('Game started')
@@ -209,7 +209,9 @@ class Gameplay:
 
 				if player.tank.state == player.tank.STATE_DESTROYED:
 					self.players.remove(player)
-					self.enemies.empty()
+					for enemy in self.enemies:
+						enemy.kill()
+					
 					self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
 					self.show_menu()
 				
@@ -227,7 +229,7 @@ class Gameplay:
 				enemy.get_action(self.players)
 
 			if len(self.enemies) == 0:
-				self.no_enemies += 1
+				# self.no_enemies += 1
 				for _ in range(self.no_enemies):
 					Enemy(self.enemies)
 			# print(pygame.time.get_ticks())

@@ -1,6 +1,7 @@
 import pygame
 import os
 import settings
+from settings import TILE_SIZE
 
 
 class Tile(pygame.sprite.Sprite):
@@ -11,7 +12,7 @@ class Tile(pygame.sprite.Sprite):
 		self.ttype = ttype
 		if ttype == self.TILE_BRICK:
 			brick = pygame.image.load("Sprites/brick.png")
-			self.image = pygame.transform.scale(brick, (25, 25))
+			self.image = pygame.transform.scale(brick, (TILE_SIZE, TILE_SIZE))
 
 		self.rect = self.image.get_rect()
 		self.rect = self.rect.move(pos)
@@ -35,12 +36,17 @@ class Level:
 
 		x, y = 0, 0
 		for row in data:
+			row_ele = []
 			for ch in row:
 				if ch == self.TILE_BRICK:
 					Tile(self.tiles,ch,(x, y))
-				x += settings.TILE_SIZE
+					row_ele.append(True)
+				else:
+					row_ele.append(False)
+				x += TILE_SIZE
+			settings.grid.append(row_ele)
 			x = 0
-			y += settings.TILE_SIZE
+			y += TILE_SIZE
 
 		return True
 

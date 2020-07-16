@@ -9,10 +9,13 @@ class Network:
 		self.connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 		self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 		# self.connection.settimeout(0.2)
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("8.8.8.8", 80))
-
-		self.serverIP = s.getsockname()[0]
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+			s.connect(("8.8.8.8", 80))
+			self.serverIP = s.getsockname()[0]
+		except:
+			self.serverIP = "127.0.0.1"
+			
 		self.serverPort = port
 		self.allowconnection = True
 		self.server_flag = True

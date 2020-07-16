@@ -26,8 +26,9 @@ class Tank(pygame.sprite.Sprite):
 
 		while True:
 			# print("Finding co-ordinate")
-			x = random.randint(0, settings.WIDTH - 43)
-			y = random.randint(0, settings.HEIGHT - 43)
+			x = random.randint(0, settings.WIDTH//settings.TILE_SIZE - 1)
+			y = random.randint(0, settings.HEIGHT//settings.TILE_SIZE - 1)
+			x , y = x * settings.TILE_SIZE , y * settings.TILE_SIZE
 			self.rect = pygame.Rect(x,y,43,43)
 			collided_brick = pygame.sprite.spritecollideany(self,settings.allObstacles)
 			collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
@@ -101,19 +102,24 @@ class Tank(pygame.sprite.Sprite):
 		elif action == 'FIRE':
 			self.fire()
 
-		collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
-		
-		if collided_bricks is not None:
-			# print("Collided",self)
+		if self.rect[0] > (settings.HEIGHT - settings.TILE_SIZE) or \
+					self.rect[1] > (settings.WIDTH - settings.TILE_SIZE) \
+				or self.rect[1] < 0 or self.rect[0] < 0:
 			self.rect = prev_rect
 		else:
-			collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
-			for coll_tank in collided_tanks:
-				if coll_tank != self:
-					print("Collition with ",coll_tank.id)
-					self.rect = prev_rect
-					break
-			# pass
+			collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
+			
+			if collided_bricks is not None:
+				# print("Collided",self)
+				self.rect = prev_rect
+			else:
+				collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
+				for coll_tank in collided_tanks:
+					if coll_tank != self:
+						print("Collition with ",coll_tank.id)
+						self.rect = prev_rect
+						break
+				# pass
 
 		if action != 'IDLE' and action != 'FIRE':
 			self.change_direction(action)
@@ -138,7 +144,7 @@ class Tank(pygame.sprite.Sprite):
 					return
 				else:
 					print(len(allTanks)," Killed ",self.id)
-					allTanks.remove(self)
+					# allTanks.remove(self)
 					self.kill()
 					# del self
 					return
@@ -146,7 +152,9 @@ class Tank(pygame.sprite.Sprite):
 			screen.blit(self.explosion_images[0],self.rect)
 			self.explosion_images.pop(0)
 
-			
+	def kill(self):
+		pygame.sprite.Sprite.kill(self)
+		allTanks.remove(self)
 
 
 class Bullet(pygame.sprite.Sprite):
