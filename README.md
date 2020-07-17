@@ -8,6 +8,8 @@ Multiplayer and Single player 2D tank game.
 ### Run
 - python main.py
 
+![](tank.gif)
+
 ### Coming Soon
 - Power levels
 - 
