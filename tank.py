@@ -184,6 +184,7 @@ class Bullet(pygame.sprite.Sprite):
 		else:
 			collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
 			if collided_bricks is not None:
+				game_sound.bullet_hit_wall_sound()
 				self.kill()
 
 				# change bullet hitting wall sound

@@ -18,16 +18,25 @@ class Sound:
 	# 	else:
 	# 		x.set_volume(1.0)
 
+
+	def bullet_hit_wall_sound(self):
+		if not self.mute:
+			x = pygame.mixer.Sound("sounds/hitwall.wav")
+			x.set_volume(0.05)
+			x.play()
+
 	def fire_sound(self):
 		if not self.mute:
 			x = pygame.mixer.Sound("sounds/boom1.wav")
 			# self.vol_mute_max(x)
+			x.set_volume(0.1)
 			x.play()
 
 	def crash_sound(self):
 		if not self.mute:
 			x = pygame.mixer.Sound("sounds/explosion.wav")
 			# self.vol_mute_max(x)
+			x.set_volume(0.1)
 			x.play()
 			
 	def damage_sound(self):
