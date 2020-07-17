@@ -4,6 +4,7 @@ import pygame
 import settings
 from sound import game_sound
 from aStar import AstarSearch
+from threading import Thread
 
 
 class Player:
@@ -74,42 +75,40 @@ class Enemy(Tank):
 		self.prev_fire_tick = 0
 		self.prev_path_find_tick = 0
 		self.actions = []
-		# self.moves = []
+		self.thread_started = False
+
+	def findPathToPlayer(self,player):
+		self.thread_started = True
+		tile_size = settings.TILE_SIZE
+		
+		# curr_cord = (self.rect[0]//tile_size , self.rect[1]//tile_size)
+		# target_cord = (player.tank.rect[0]//tile_size, player.tank.rect[1]//tile_size)
+
+		curr_cord = (self.rect[0] , self.rect[1])
+		target_cord = (player.tank.rect[0], player.tank.rect[1])
+		self.actions = AstarSearch.findPath(curr_cord,target_cord)
+		self.thread_started = False
 
 	def get_action(self,players):
 		current_tick = pygame.time.get_ticks()
-		# # if current_tick - self.prev_fire_tick > 1000:
-		# # 	self.prev_fire_tick = current_tick
-		# # 	self.move('FIRE')
-		# # else:
-		# movement_prob = random.random()
-		# if movement_prob < 0.05 and \
-		# 	(current_tick - self.prev_fire_tick) > 500:
-		# 	self.prev_fire_tick = current_tick
-		# 	self.move('FIRE')
-		# 	return
+
+		movement_prob = random.random()
+		if movement_prob < 0.05 and \
+			(current_tick - self.prev_fire_tick) > 500:
+			self.prev_fire_tick = current_tick
+			self.move('FIRE')
+			return
 
 		player = random.choice(players)
-		tile_size = settings.TILE_SIZE
 
 		if len(self.actions) == 0 and (current_tick - self.prev_path_find_tick) > 2000:
 			self.prev_path_find_tick = current_tick
-			# curr_cord = (self.rect[0]//tile_size , self.rect[1]//tile_size)
-			# target_cord = (player.tank.rect[0]//tile_size, player.tank.rect[1]//tile_size)
-
-			curr_cord = (self.rect[0] , self.rect[1])
-			target_cord = (player.tank.rect[0], player.tank.rect[1])
-			self.actions = AstarSearch.findPath(curr_cord,target_cord)
-			print(curr_cord,target_cord)
-			if len(self.actions) != 0:
-				print(self.actions)
+			if not self.thread_started:
+				t = Thread(target=self.findPathToPlayer,args=(player,))
+				t.start()
 				# exit(0)
 
 		if len(self.actions) != 0:
-			# if len(self.moves) == 0:
-			# 	move = self.actions.pop()
-			# 	self.moves =  [move] * 16
-				
 			nextMove = self.actions.pop()
 			self.move(nextMove)
 		else:

@@ -1,26 +1,6 @@
 import pygame
-# from settings import allObstacles
 import settings
 
-
-# filename = "Levels/"+str(1)
-# # if (not os.path.isfile(filename)):
-# # 	return False
-
-# grid = []
-
-# with open(filename, "r") as f:
-# 	data = f.read().split("\n")
-
-# for row in data:
-# 	row_ele = []
-# 	for ch in row:
-# 		if ch == '#':
-# 			row_ele.append(True)
-# 		else:
-# 			row_ele.append(False)
-
-# 	grid.append(row_ele)
 
 def distance(node,cor):
 	return abs(node.x - cor[0]) + abs(node.y - cor[1])

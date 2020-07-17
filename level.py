@@ -36,15 +36,12 @@ class Level:
 
 		x, y = 0, 0
 		for row in data:
-			row_ele = []
 			for ch in row:
 				if ch == self.TILE_BRICK:
 					Tile(self.tiles,ch,(x, y))
-					row_ele.append(True)
-				else:
-					row_ele.append(False)
+
 				x += TILE_SIZE
-			settings.grid.append(row_ele)
+
 			x = 0
 			y += TILE_SIZE
 

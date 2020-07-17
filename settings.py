@@ -3,8 +3,6 @@ import pygame
 def sprite_obstacles_init():
 	global allObstacles
 	allObstacles = pygame.sprite.Group()
-	global grid
-	grid = []
 
 
 
