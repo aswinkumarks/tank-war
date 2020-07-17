@@ -14,6 +14,7 @@ class Tank(pygame.sprite.Sprite):
 		allTanks.append(self)
 		self.id = str(uuid.uuid4())
 		self.hp = 100
+		self.no_kills = 0
 
 		if colour == "Blue":
 			self.sprites = pygame.image.load("Sprites/tank-blue.png")
@@ -184,6 +185,8 @@ class Bullet(pygame.sprite.Sprite):
 			collided_bricks = pygame.sprite.spritecollideany(self,settings.allObstacles)
 			if collided_bricks is not None:
 				self.kill()
+
+				# change bullet hitting wall sound
 				game_sound.damage_sound()
 			else:
 				collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
@@ -193,7 +196,9 @@ class Bullet(pygame.sprite.Sprite):
 						coll_tank.hp -= self.damage
 						game_sound.damage_sound()
 						self.kill()
-						return
+
+						if coll_tank.hp == 0:
+							mytank.no_kills+=1
 
 
 	def rotate_bullet(self, new_direction):

@@ -9,13 +9,13 @@ def checkCollision(x,y):
 	# x, y = x*settings.TILE_SIZE, y*settings.TILE_SIZE
 	# x , y = x//settings.TILE_SIZE, y//settings.TILE_SIZE
 	pos_rect = pygame.Rect(x,y,48,48)
-	collition = False
+	collision = False
 	for obstacle in settings.allObstacles:
 		if pos_rect.colliderect(obstacle.rect):
-			collition = True
+			collision = True
 			break
 
-	return not collition
+	return not collision
 
 	# if grid[x][y]:
 	# 	return False

@@ -79,7 +79,7 @@ class Enemy(Tank):
 
 	def findPathToPlayer(self,player):
 		self.thread_started = True
-		tile_size = settings.TILE_SIZE
+		# tile_size = settings.TILE_SIZE
 		
 		# curr_cord = (self.rect[0]//tile_size , self.rect[1]//tile_size)
 		# target_cord = (player.tank.rect[0]//tile_size, player.tank.rect[1]//tile_size)

@@ -3,7 +3,7 @@ import pygame
 class Sound:
 	def __init__(self):
 		pygame.mixer.init()
-		self.mute = True
+		self.mute = False
 
 	def mute_toggle(self):
 		self.mute = not self.mute
@@ -12,22 +12,22 @@ class Sound:
 		else:
 			pygame.mixer.music.unpause()
 
-	def vol_mute_max(self, x):
-		if self.mute:
-			x.set_volume(0.0)
-		else:
-			x.set_volume(1.0)
+	# def vol_mute_max(self, x):
+	# 	if self.mute:
+	# 		x.set_volume(0.0)
+	# 	else:
+	# 		x.set_volume(1.0)
 
 	def fire_sound(self):
 		if not self.mute:
 			x = pygame.mixer.Sound("sounds/boom1.wav")
-			self.vol_mute_max(x)
+			# self.vol_mute_max(x)
 			x.play()
 
 	def crash_sound(self):
 		if not self.mute:
 			x = pygame.mixer.Sound("sounds/explosion.wav")
-			self.vol_mute_max(x)
+			# self.vol_mute_max(x)
 			x.play()
 			
 	def damage_sound(self):

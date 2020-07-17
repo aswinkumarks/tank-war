@@ -31,12 +31,6 @@ class Gameplay:
 		self.enemies = pygame.sprite.Group()
 		self.no_enemies = 2
 
-		# mute icon
-		self.mute_icon = pygame.image.load("Sprites/mute.png")
-		self.mute_icon = pygame.transform.scale(self.mute_icon, (20, 20))
-		self.mute_rect = self.mute_icon.get_rect()
-		self.mute_rect = self.mute_rect.move((10,10))
-
 		if full_screen == True:
 			self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
 		else:
@@ -48,13 +42,23 @@ class Gameplay:
 		self.screen.fill(BLACK)
 		self.level.tiles.draw(self.screen)
 		if game_sound.mute:
-			self.screen.blit(self.mute_icon, self.mute_rect)
+			self.screen.blit(settings.mute_icon, settings.mute_rect)
 
 		for player in self.players:
 			player.tank.draw(self.screen)
+			if player.ptype == "local":
+				self.screen.blit(settings.hp_icon, settings.hp_rect)
+				text_hp = self.tiny_font.render(str(player.tank.hp), True, WHITE, (0,0,0)) 
+				self.screen.blit(text_hp,[610,12])
+				self.screen.blit(settings.kills_icon, settings.kills_rect)
+				text_kills = self.tiny_font.render(str(player.tank.no_kills), True, WHITE, (0,0,0)) 
+				self.screen.blit(text_kills,[540,12])
 		
 		for enemy in self.enemies:
 			enemy.draw(self.screen)
+
+		# draw hp, kills on top right
+
 
 		pygame.display.flip()
 
@@ -95,7 +99,7 @@ class Gameplay:
 				self.text_format_draw(self.players[i].name,WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, -1, 2)
 
 		if game_sound.mute:
-			self.screen.blit(self.mute_icon, self.mute_rect)
+			self.screen.blit(settings.mute_icon, settings.mute_rect)
 
 		pygame.display.flip()
 									
