@@ -1,9 +1,13 @@
 # TANK WAR beta v0.1
 
-## Requirements
+Multiplayer and Single player 2D tank game.
 
+### Requirements
 - pygame 1.9.6
 
-## Run
-
+### Run
 - python main.py
+
+### Coming Soon
+- Power levels
+- 
