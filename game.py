@@ -48,6 +48,7 @@ class Gameplay:
 		for player in self.players:
 			if player.ptype == "local":
 				local_player = player
+				break
 
 		for player in self.players:
 
