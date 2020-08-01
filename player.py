@@ -5,12 +5,14 @@ import settings
 from sound import game_sound
 from aStar import AstarSearch
 from threading import Thread
+from powers import Powers
 
 
 class Player:
 	def __init__(self, name, hp, ptype = 'local'):
 	   
 		self.tank = Tank()
+		self.powers = Powers()
 		self.pid = str(uuid.uuid4())
 		self.ptype = ptype
 		self.name = name
@@ -64,6 +66,12 @@ class Player:
 			# exit(0)
 
 		self.tank.move(self.action)
+
+	def check_vision(self, remote_player):
+		dist = self.tank.calculate_dist_bw_tanks(remote_player.tank)
+		if dist <= self.powers.vision_radius:
+			return True
+		return False
 		
 
 class Enemy(Tank):

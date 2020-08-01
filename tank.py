@@ -157,6 +157,11 @@ class Tank(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.kill(self)
 		allTanks.remove(self)
 
+	def calculate_dist_bw_tanks(self, remote_tank):
+		remote_pos = (remote_tank.rect[0], remote_tank.rect[0])
+		local_pos = (self.rect[0], self.rect[0])
+		return ((remote_pos[0]-local_pos[0])**2 + (remote_pos[1]-local_pos[1])**2)**0.5
+
 
 class Bullet(pygame.sprite.Sprite):
 	image = None

@@ -44,8 +44,16 @@ class Gameplay:
 		if game_sound.mute:
 			self.screen.blit(settings.mute_icon, settings.mute_rect)
 
+		local_player = None
 		for player in self.players:
-			player.tank.draw(self.screen)
+			if player.ptype == "local":
+				local_player = player
+
+		for player in self.players:
+
+			if local_player.check_vision(player):
+				player.tank.draw(self.screen)
+
 			if player.ptype == "local":
 				self.screen.blit(settings.hp_icon, settings.hp_rect)
 				text_hp = self.tiny_font.render(str(player.tank.hp), True, WHITE, (0,0,0)) 
