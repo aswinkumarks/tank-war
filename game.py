@@ -27,6 +27,7 @@ class Gameplay:
 
 		self.network = Network(server_port,self)
 		self.start_game = False
+		self.local_player = None
 		
 		self.enemies = pygame.sprite.Group()
 		self.no_enemies = 2
@@ -36,38 +37,39 @@ class Gameplay:
 		else:
 			self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-		# screen.fill(black)
 
-	def update_screen(self):
-		self.screen.fill(BLACK)
-		self.level.tiles.draw(self.screen)
+	def draw_hud(self):				
 		if game_sound.mute:
 			self.screen.blit(settings.mute_icon, settings.mute_rect)
 
-		local_player = None
-		for player in self.players:
-			if player.ptype == "local":
-				local_player = player
-				break
+		# draw hp, kills on top right
+		self.screen.blit(settings.hp_icon, settings.hp_rect)
+		text_hp = self.tiny_font.render(str(self.local_player.tank.hp), True, WHITE, (0,0,0)) 
+		self.screen.blit(text_hp,[610,12])
+		self.screen.blit(settings.kills_icon, settings.kills_rect)
+		text_kills = self.tiny_font.render(str(self.local_player.tank.no_kills), True, WHITE, (0,0,0)) 
+		self.screen.blit(text_kills,[540,12])
+
+	def update_screen(self):
+		self.screen.fill(BLACK)
+		self.draw_hud()
 
 		for player in self.players:
-
-			if local_player.check_vision(player):
-				player.tank.draw(self.screen)
+			player.tank.draw(self.screen)
 
 			if player.ptype == "local":
-				self.screen.blit(settings.hp_icon, settings.hp_rect)
-				text_hp = self.tiny_font.render(str(player.tank.hp), True, WHITE, (0,0,0)) 
-				self.screen.blit(text_hp,[610,12])
-				self.screen.blit(settings.kills_icon, settings.kills_rect)
-				text_kills = self.tiny_font.render(str(player.tank.no_kills), True, WHITE, (0,0,0)) 
-				self.screen.blit(text_kills,[540,12])
-		
+				player.explore_map()
+
+		# single player
 		for enemy in self.enemies:
+			player.explore_map()
 			enemy.draw(self.screen)
 
-		# draw hp, kills on top right
-
+		# render explored part of map
+		for tile in self.level.tiles:
+			if tile.visible:
+				print(tile)
+				tile.draw(self.screen)
 
 		pygame.display.flip()
 
@@ -210,7 +212,7 @@ class Gameplay:
 	def add_player(self,player):
 		if player.ptype == 'local':  
 			player.addr = (self.network.serverIP,self.network.serverPort)
-		
+			self.local_player = player
 		self.players.append(player)
 
 
@@ -226,6 +228,7 @@ class Gameplay:
 						enemy.kill()
 					
 					self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
+					self.reset()
 					self.show_menu()
 				
 				if self.mode == 'Multi Player' and player.ptype == 'local':
@@ -246,5 +249,8 @@ class Gameplay:
 				for _ in range(self.no_enemies):
 					Enemy(self.enemies)
 			# print(pygame.time.get_ticks())
+	
+	def reset(self):
+		pass
 
 

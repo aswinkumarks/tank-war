@@ -16,6 +16,10 @@ class Tile(pygame.sprite.Sprite):
 
 		self.rect = self.image.get_rect()
 		self.rect = self.rect.move(pos)
+		self.visible = False
+	
+	def draw(self, screen):
+		screen.blit(self.image, self.rect)
 
 
 class Level:
