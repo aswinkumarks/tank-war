@@ -9,7 +9,7 @@ from powers import Powers
 
 
 class Player:
-	def __init__(self, name, hp, ptype = 'local'):
+	def __init__(self, name, ptype = 'local'):
 	   
 		self.tank = Tank()
 		self.powers = Powers()
@@ -70,10 +70,14 @@ class Player:
 
 	def check_LOS(self, px, py):
 		
-		tiles_up = list(filter(lambda x : x.rect[0] // settings.TILE_SIZE == px  and x.rect[1]//settings.TILE_SIZE < py, settings.allObstacles))
-		tiles_down = list(filter(lambda x : x.rect[0] // settings.TILE_SIZE == px and x.rect[1]//settings.TILE_SIZE > py, settings.allObstacles)) 
-		tiles_left = list(filter(lambda x : x.rect[1] // settings.TILE_SIZE == py  and x.rect[0]//settings.TILE_SIZE < px, settings.allObstacles))
-		tiles_right = list(filter(lambda x : x.rect[1] // settings.TILE_SIZE == py and x.rect[0]//settings.TILE_SIZE > px, settings.allObstacles))
+		tiles_up = list(filter(lambda x : (x.rect[0] // settings.TILE_SIZE == px or x.rect[0] // settings.TILE_SIZE == px-1 or x.rect[0] // settings.TILE_SIZE == px+1)\
+			and x.rect[1]//settings.TILE_SIZE < py, settings.allObstacles))
+		tiles_down = list(filter(lambda x : (x.rect[0] // settings.TILE_SIZE == px or x.rect[0] // settings.TILE_SIZE == px-1 or x.rect[0] // settings.TILE_SIZE == px+1)\
+			and x.rect[1]//settings.TILE_SIZE > py, settings.allObstacles)) 
+		tiles_left = list(filter(lambda x : (x.rect[1] // settings.TILE_SIZE == py or x.rect[0] // settings.TILE_SIZE == py-1 or x.rect[0] // settings.TILE_SIZE == py+1)\
+			and x.rect[0]//settings.TILE_SIZE < px, settings.allObstacles))
+		tiles_right = list(filter(lambda x : (x.rect[1] // settings.TILE_SIZE == py or x.rect[0] // settings.TILE_SIZE == py-1 or x.rect[0] // settings.TILE_SIZE == py+1)\
+			and x.rect[0]//settings.TILE_SIZE > px, settings.allObstacles))
 
 		blocking_tile_up, blocking_tile_right, blocking_tile_left, blocking_tile_down = None, None, None, None	
 		# dist to nearest block
@@ -108,7 +112,7 @@ class Player:
 		px = (self.tank.rect[0] + settings.TANK_W/2) // settings.TILE_SIZE
 		py = (self.tank.rect[1] + settings.TANK_H/2) // settings.TILE_SIZE
 		bu, bl, bd, br = self.check_LOS(px, py)
-		print(bu, bl, bd, br)
+		# print(bu, bl, bd, br)
 		
 		for tile in settings.allObstacles:
 			
@@ -128,7 +132,7 @@ class Enemy(Tank):
 	def __init__(self,enemies):
 		super().__init__(colour="Green")
 		pygame.sprite.Sprite.__init__(self, enemies)
-		self.hp = 20
+		self.hp = 10
 		self.movement_speed = 3
 		self.prev_fire_tick = 0
 		self.prev_path_find_tick = 0

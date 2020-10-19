@@ -3,7 +3,7 @@ import pygame
 class Sound:
 	def __init__(self):
 		pygame.mixer.init()
-		self.mute = False
+		self.mute = True
 
 	def mute_toggle(self):
 		self.mute = not self.mute

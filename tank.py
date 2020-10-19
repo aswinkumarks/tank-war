@@ -14,7 +14,7 @@ class Tank(pygame.sprite.Sprite):
 		super().__init__()
 		allTanks.append(self)
 		self.id = str(uuid.uuid4())
-		self.hp = 100
+		self.hp = 20
 		self.no_kills = 0
 
 		if colour == "Blue":
