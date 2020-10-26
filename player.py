@@ -9,7 +9,7 @@ from powers import Powers
 
 
 class Player:
-	def __init__(self, name, hp, ptype = 'local'):
+	def __init__(self, name, ptype = 'local'):
 	   
 		self.tank = Tank()
 		self.powers = Powers()
@@ -20,6 +20,7 @@ class Player:
 		self.addr = ()
 		self.prev_fire_tick = pygame.time.get_ticks()
 		self.EXIT_GAME = False
+		self.explored_tiles = []
 
 	def get_action(self):
 		
@@ -67,18 +68,71 @@ class Player:
 
 		self.tank.move(self.action)
 
-	def check_vision(self, remote_player):
-		dist = self.tank.calculate_dist_bw_tanks(remote_player.tank)
-		if dist <= self.powers.vision_radius:
-			return True
-		return False
+	def check_LOS(self, px, py):
 		
+		tiles_up = list(filter(lambda x : (x.rect[0] // settings.TILE_SIZE == px or x.rect[0] // settings.TILE_SIZE == px-1 or x.rect[0] // settings.TILE_SIZE == px+1)\
+			and x.rect[1]//settings.TILE_SIZE < py, settings.allObstacles))
+		tiles_down = list(filter(lambda x : (x.rect[0] // settings.TILE_SIZE == px or x.rect[0] // settings.TILE_SIZE == px-1 or x.rect[0] // settings.TILE_SIZE == px+1)\
+			and x.rect[1]//settings.TILE_SIZE > py, settings.allObstacles)) 
+		tiles_left = list(filter(lambda x : (x.rect[1] // settings.TILE_SIZE == py or x.rect[0] // settings.TILE_SIZE == py-1 or x.rect[0] // settings.TILE_SIZE == py+1)\
+			and x.rect[0]//settings.TILE_SIZE < px, settings.allObstacles))
+		tiles_right = list(filter(lambda x : (x.rect[1] // settings.TILE_SIZE == py or x.rect[0] // settings.TILE_SIZE == py-1 or x.rect[0] // settings.TILE_SIZE == py+1)\
+			and x.rect[0]//settings.TILE_SIZE > px, settings.allObstacles))
+
+		blocking_tile_up, blocking_tile_right, blocking_tile_left, blocking_tile_down = None, None, None, None	
+		# dist to nearest block
+		if len(tiles_up) != 0:
+			blocking_tile_up = min(tiles_up, key=lambda x: abs(x.rect[1]//settings.TILE_SIZE - py))
+		if len(tiles_down) != 0:
+			blocking_tile_down = min(tiles_down, key=lambda x: abs(x.rect[1]//settings.TILE_SIZE - py))
+		if len(tiles_left) != 0:
+			blocking_tile_left = min(tiles_left, key=lambda x: abs(x.rect[0]//settings.TILE_SIZE - px))
+		if len(tiles_right) != 0:
+			blocking_tile_right = min(tiles_right, key=lambda x: abs(x.rect[0]//settings.TILE_SIZE - px))
+
+
+		bu = (px, 0)
+		bl = (0, py)
+		bd = (px, settings.MAP_DIM)
+		br = (settings.MAP_DIM, py)
+
+		if blocking_tile_up is not None:
+			bu = (blocking_tile_up.rect[0]//settings.TILE_SIZE, blocking_tile_up.rect[1]//settings.TILE_SIZE)
+		if blocking_tile_left is not None:
+			bl = (blocking_tile_left.rect[0]//settings.TILE_SIZE, blocking_tile_left.rect[1]//settings.TILE_SIZE)
+		if blocking_tile_down is not None:
+			bd = (blocking_tile_down.rect[0]//settings.TILE_SIZE, blocking_tile_down.rect[1]//settings.TILE_SIZE)
+		if blocking_tile_right is not None:
+			br = (blocking_tile_right.rect[0]//settings.TILE_SIZE, blocking_tile_right.rect[1]//settings.TILE_SIZE)
+		
+		return bu, bl, bd, br
+
+	def explore_map(self):
+		# add unexplored bricks(tiles)
+		px = (self.tank.rect[0] + settings.TANK_W/2) // settings.TILE_SIZE
+		py = (self.tank.rect[1] + settings.TANK_H/2) // settings.TILE_SIZE
+		bu, bl, bd, br = self.check_LOS(px, py)
+		# print(bu, bl, bd, br)
+		
+		for tile in settings.allObstacles:
+			
+			tx = tile.rect[0]//settings.TILE_SIZE
+			ty = tile.rect[0]//settings.TILE_SIZE
+
+			if tx >= bl[0] and tx <= br[0]:
+				if abs(ty-py) < 2:
+					tile.visible = True
+			
+			if ty >= bu[0] and ty <= bd[0]:
+				if abs(tx-px) < 2:
+					tile.visible = True
+					
 
 class Enemy(Tank):
 	def __init__(self,enemies):
 		super().__init__(colour="Green")
 		pygame.sprite.Sprite.__init__(self, enemies)
-		self.hp = 20
+		self.hp = 10
 		self.movement_speed = 3
 		self.prev_fire_tick = 0
 		self.prev_path_find_tick = 0

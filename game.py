@@ -27,6 +27,7 @@ class Gameplay:
 
 		self.network = Network(server_port,self)
 		self.start_game = False
+		self.local_player = None
 		
 		self.enemies = pygame.sprite.Group()
 		self.no_enemies = 2
@@ -36,38 +37,39 @@ class Gameplay:
 		else:
 			self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-		# screen.fill(black)
 
-	def update_screen(self):
-		self.screen.fill(BLACK)
-		self.level.tiles.draw(self.screen)
+	def draw_hud(self):				
 		if game_sound.mute:
 			self.screen.blit(settings.mute_icon, settings.mute_rect)
 
-		local_player = None
-		for player in self.players:
-			if player.ptype == "local":
-				local_player = player
-				break
+		# draw hp, kills on top right
+		self.screen.blit(settings.hp_icon, settings.hp_rect)
+		text_hp = self.tiny_font.render(str(self.local_player.tank.hp), True, WHITE, (0,0,0)) 
+		self.screen.blit(text_hp,[610,12])
+		self.screen.blit(settings.kills_icon, settings.kills_rect)
+		text_kills = self.tiny_font.render(str(self.local_player.tank.no_kills), True, WHITE, (0,0,0)) 
+		self.screen.blit(text_kills,[540,12])
+
+	def update_screen(self):
+		self.screen.fill(BLACK)
+		self.draw_hud()
 
 		for player in self.players:
+			player.tank.draw(self.screen)
 
-			if local_player.check_vision(player):
-				player.tank.draw(self.screen)
+			# if player.ptype == "local":
+			# 	player.explore_map()
 
-			if player.ptype == "local":
-				self.screen.blit(settings.hp_icon, settings.hp_rect)
-				text_hp = self.tiny_font.render(str(player.tank.hp), True, WHITE, (0,0,0)) 
-				self.screen.blit(text_hp,[610,12])
-				self.screen.blit(settings.kills_icon, settings.kills_rect)
-				text_kills = self.tiny_font.render(str(player.tank.no_kills), True, WHITE, (0,0,0)) 
-				self.screen.blit(text_kills,[540,12])
-		
+		# single player
 		for enemy in self.enemies:
+			# player.explore_map()
 			enemy.draw(self.screen)
 
-		# draw hp, kills on top right
-
+		# render explored part of map
+		for tile in self.level.tiles:
+			if tile.visible:
+				# print(tile)
+				tile.draw(self.screen)
 
 		pygame.display.flip()
 
@@ -87,19 +89,19 @@ class Gameplay:
 		# self.level.tiles.draw(self.screen)
 		if self.active_menu == 'Main menu':
 			self.text_format_draw('TANK WAR', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
-			self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
-			self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
-			self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 160, self.tiny_font, 3, selction)
-			self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 4, selction)
+			self.text_format_draw('Singleplayer',WHITE , WIDTH/2, HEIGHT/8 + 140, self.tiny_font, 1, selction)
+			self.text_format_draw('Multiplayer', WHITE, WIDTH/2, HEIGHT/8 + 170, self.tiny_font, 2, selction)
+			self.text_format_draw('Settings', WHITE, WIDTH/2, HEIGHT/8 + 200, self.tiny_font, 3, selction)
+			self.text_format_draw('Quit', RED, WIDTH/2, HEIGHT/8 + 230, self.tiny_font, 4, selction)
 
 		elif self.active_menu == 'Multi-player menu':
-			self.text_format_draw('Host Server', WHITE, WIDTH/2, HEIGHT/8 + 100, self.tiny_font, 1, selction)
-			self.text_format_draw('Join Server',WHITE , WIDTH/2, HEIGHT/8 + 130, self.tiny_font, 2, selction)
+			self.text_format_draw('Host Server', WHITE, WIDTH/2, HEIGHT/8 + 120, self.tiny_font, 1, selction)
+			self.text_format_draw('Join Server',WHITE , WIDTH/2, HEIGHT/8 + 150, self.tiny_font, 2, selction)
 
 		elif self.active_menu == 'List available servers':
 			self.text_format_draw('Available Servers', YELLOW, WIDTH/2, HEIGHT/10, self.font, -1, -2)
 			for i in range(len(self.available_servers)):
-				self.text_format_draw(self.available_servers[i][0],WHITE , WIDTH/2, HEIGHT/8 + 100 + i * 20, self.tiny_font, i+1, selction)
+				self.text_format_draw(self.available_servers[i][0],WHITE , WIDTH/2, HEIGHT/8 + 110 + i * 20, self.tiny_font, i+1, selction)
 
 		
 		elif self.active_menu == 'Show connected clients':
@@ -181,20 +183,20 @@ class Gameplay:
 								self.active_menu = 'List available servers'
 
 						elif self.active_menu == 'List available servers':
-							p1 = Player('Player 2',100)
+							p1 = Player('Player 2')
 							self.add_player(p1)
 							self.network.join_server(p1,selected-1)
 							# self.network.start_server()
 
 						elif self.active_menu == 'Show connected clients':
-							p1 = Player('Warrior',100)
+							p1 = Player('Warrior')
 							self.add_player(p1)
 							self.network.send_connected_player_info()
 
 			# print('pass')
 			if self.start_game:
 				if self.mode == 'Single Player':
-					p1 = Player('Warrior',100)
+					p1 = Player('Warrior')
 					self.add_player(p1)
 					Enemy(self.enemies)
 					# Enemy(self.enemies)
@@ -210,41 +212,66 @@ class Gameplay:
 	def add_player(self,player):
 		if player.ptype == 'local':  
 			player.addr = (self.network.serverIP,self.network.serverPort)
-		
+			self.local_player = player
 		self.players.append(player)
 
 
 	def start(self):
 		pygame.key.set_repeat(20)
+		self.update_screen()
+
 		while True:
+			self.local_player.explore_map()
 			for player in self.players:
 				player.get_action()
-
-				if player.tank.state == player.tank.STATE_DESTROYED:
-					self.players.remove(player)
+			
+				if self.mode == "Single Player":
 					for enemy in self.enemies:
-						enemy.kill()
-					
-					self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 250, self.font, -1, -2)
-					self.show_menu()
+						enemy.get_action(self.players)
+
+						if player.tank.state == player.tank.STATE_DESTROYED:
+							self.players.remove(player)
+							for enemy in self.enemies:
+								enemy.kill()					
+							
+					if len(self.enemies) == 0:
+						for _ in range(self.no_enemies):
+							Enemy(self.enemies)
+
+				elif self.mode == 'Multi Player':
+					if player.tank.state == player.tank.STATE_DESTROYED:
+						self.players.remove(player)	
 				
-				if self.mode == 'Multi Player' and player.ptype == 'local':
-					if player.action != 'IDLE':
-						self.network.send_action(player)
+					# if player.ptype == 'local':
+					if self.local_player.action != 'IDLE':
+						self.network.send_action(self.local_player)			
 
 			self.update_screen()
 			self.timer.tick(FPS)
 
-			if self.mode == 'Multi Player':
-				continue
+			if self.local_player.tank.state == self.local_player.tank.STATE_DESTROYED:
+				self.reset()
+				break
 
-			for enemy in self.enemies:
-				enemy.get_action(self.players)
+		self.show_menu()
 
-			if len(self.enemies) == 0:
-				# self.no_enemies += 1
-				for _ in range(self.no_enemies):
-					Enemy(self.enemies)
-			# print(pygame.time.get_ticks())
+
+	def reset(self):
+		self.text_format_draw('Game OVER', YELLOW, WIDTH/2, HEIGHT/8 + 200, self.font, -1, -2)
+		score = 'Score : ' + str(self.local_player.tank.no_kills)
+		self.text_format_draw(score, YELLOW, WIDTH/2, HEIGHT/8 + 245, self.small_font, -1, -2)
+		self.text_format_draw("Hit SPACE to exit to main menu", YELLOW, WIDTH/2, HEIGHT/8 + 280, self.tiny_font, -1, -2)
+
+		# reset map
+		for tile in self.level.tiles:
+			tile.visible = False
+
+		pygame.display.flip()
+		pygame.event.clear()
+		while True:
+			event = pygame.event.wait()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE :
+					break
 
 

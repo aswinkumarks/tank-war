@@ -20,6 +20,7 @@ MAP_DIM = 13
 HEIGHT = MAP_DIM * TILE_SIZE
 WIDTH = MAP_DIM * TILE_SIZE
 
+TANK_H, TANK_W = 48, 48
 
 # mute icon
 mute_icon = pygame.image.load("Sprites/mute.png")

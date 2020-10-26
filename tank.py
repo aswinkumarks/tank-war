@@ -5,6 +5,7 @@ import uuid
 import settings
 
 allTanks = []
+CC = 5
 
 class Tank(pygame.sprite.Sprite):
 	(STATE_ALIVE,STATE_EXPLODING,STATE_DESTROYED) = range(3)
@@ -13,7 +14,7 @@ class Tank(pygame.sprite.Sprite):
 		super().__init__()
 		allTanks.append(self)
 		self.id = str(uuid.uuid4())
-		self.hp = 100
+		self.hp = 20
 		self.no_kills = 0
 
 		if colour == "Blue":
@@ -22,7 +23,7 @@ class Tank(pygame.sprite.Sprite):
 			self.sprites = pygame.image.load("Sprites/tank-green.png")
 
 		tank_image = self.sprites.subsurface(11,7,40,54)
-		self.image = pygame.transform.scale(tank_image,(48,48))
+		self.image = pygame.transform.scale(tank_image,(settings.TANK_H,settings.TANK_W))
 		# self.rect = self.image.get_rect()
 
 		while True:
@@ -30,7 +31,7 @@ class Tank(pygame.sprite.Sprite):
 			x = random.randint(0, settings.WIDTH//settings.TILE_SIZE - 1)
 			y = random.randint(0, settings.HEIGHT//settings.TILE_SIZE - 1)
 			x , y = x * settings.TILE_SIZE , y * settings.TILE_SIZE
-			self.rect = pygame.Rect(x,y,43,43)
+			self.rect = pygame.Rect(x,y,settings.TANK_H - CC,settings.TANK_W - CC)
 			collided_brick = pygame.sprite.spritecollideany(self,settings.allObstacles)
 			collided_tanks = pygame.sprite.spritecollide(self,allTanks,dokill=False)
 			flag = False
@@ -156,9 +157,6 @@ class Tank(pygame.sprite.Sprite):
 	def kill(self):
 		pygame.sprite.Sprite.kill(self)
 		allTanks.remove(self)
-
-	def calculate_dist_bw_tanks(self, remote_tank):
-		return int(((remote_tank.rect[0]-self.rect[0])**2 + (remote_tank.rect[1]-self.rect[1])**2)**0.5)
 
 
 class Bullet(pygame.sprite.Sprite):
