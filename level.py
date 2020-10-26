@@ -2,7 +2,7 @@ import pygame
 import os
 import settings
 from settings import TILE_SIZE
-
+from map_gen import Map
 
 class Tile(pygame.sprite.Sprite):
 	(TILE_EMPTY, TILE_BRICK, TILE_STEEL) = '.','#','@'
@@ -26,7 +26,20 @@ class Level:
 		self.tiles = pygame.sprite.Group()
 		self.lno = 1
 
-	def load_level(self):
+	def load_level(self, random=False):
+		if random:
+			map_generator = Map(7,7)
+			map_matrix = map_generator.generate()
+			for row_index in range(settings.MAP_DIM):
+				y = row_index * TILE_SIZE
+				for col_index in range(settings.MAP_DIM):
+					x = col_index * TILE_SIZE
+					if map_matrix[row_index][col_index] == 1:
+						Tile(self.tiles,"#",(x, y))
+			
+			# print(self.tiles)
+			return True
+
 		filename = "Levels/"+str(self.lno)
 		if (not os.path.isfile(filename)):
 			return False

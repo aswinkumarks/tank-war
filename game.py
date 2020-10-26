@@ -119,7 +119,7 @@ class Gameplay:
 		selected = 1
 		self.draw_menu(selected)
 		game_sound.menu_music()
-		self.level.load_level()
+		self.level.load_level(random=True)
 
 		self.active_menu = 'Main menu'
 		self.start_game = False
